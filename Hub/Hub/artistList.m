@@ -104,6 +104,11 @@
     return [[self sectionArray:section] objectAtIndex:row];
 }
 
+-(NSString*)artistAtIndex:(NSUInteger)row
+{
+    return [self.artists objectAtIndex:row];
+}
+
 -(NSUInteger)artistCount
 {
     return [self.artists count];

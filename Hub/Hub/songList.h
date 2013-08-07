@@ -20,11 +20,14 @@
 
 //data
 @property NSMutableArray *songs;
+@property NSMutableArray *albums;
 
 //Methods
+-(id)initWithBusqueda:(NSString *)busqueda;
 -(id)initWithArtist:(NSString *)artist;
 -(id)initWithAlbum:(NSString *)album;
 -(NSString*)songAtIndex:(NSUInteger)row;
+-(NSString*)albumAtIndex:(NSUInteger)row;
 -(NSString*)songAtSectionAndIndex:(NSUInteger)section row:(NSUInteger)row;
 -(NSUInteger)songCount;
 -(void)addSongAtIndexToQueue:(NSUInteger)row artist:(NSString *)artist album:(NSString *)album;

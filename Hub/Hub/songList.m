@@ -7,6 +7,7 @@
 //
 
 #import "songList.h"
+#import "AppDelegate.h"
 
 @interface songList ()
 
@@ -20,6 +21,15 @@
 - (id)init {
     if (self = [super init]) {        
         [self initializeDefaultDataList];
+        return self;
+    }
+    return nil;
+}
+
+-(id)initWithBusqueda:(NSString *)busqueda
+{
+    if (self = [super init]) {
+        [self initializeBusquedaDataList:busqueda];
         return self;
     }
     return nil;
@@ -87,6 +97,9 @@
         [self.songs removeObjectAtIndex:0];
 }
 
+
+
+
 -(void)initializeDataList:(NSString*)strSearch
 {
     NSMutableArray *list = [[NSMutableArray alloc] init];
@@ -122,8 +135,139 @@
         [self.songs removeObjectAtIndex:0];
 }
 
+-(void)initializeBusquedaDataList:(NSString *)busqueda
+{
+    NSMutableArray *list = [[NSMutableArray alloc] init];
+    self.songs = list;
+    
+    NSMutableArray *listid = [[NSMutableArray alloc] init];
+    self.albums = listid;
+    
+    [self initializeConnection];
+    if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
+    {
+        NSLog(@"Connection error");
+        mpd_connection_free(self.conn);
+        [self initializeConnection];
+        return;
+    }
+    
+    const char *cBusqueda = [busqueda UTF8String];
+    mpd_command_list_begin(self.conn, true);
+    mpd_search_db_songs(self.conn, true);
+    mpd_search_add_tag_constraint(self.conn, MPD_OPERATOR_DEFAULT, MPD_TAG_TITLE, cBusqueda);
+    
+    mpd_search_commit(self.conn);
+    mpd_command_list_end(self.conn);
+    
+    struct mpd_song *song;
+    while((song=mpd_recv_song(self.conn))!=NULL)
+    {
+        char* szText = (char*)mpd_song_get_tag(song, MPD_TAG_TITLE, 0);
+        if (szText == nil) {
+            szText = "Unkown Title";
+        }
+        [self.songs addObject:[[NSString alloc] initWithUTF8String:szText]];
+        
+        char* szTextId = (char*)mpd_song_get_tag(song, MPD_TAG_ALBUM, 0);
+        if (szTextId == nil) {
+            szTextId = "Unkown Id";
+        }
+        
+        [self.albums addObject:[[NSString alloc] initWithUTF8String:szTextId]];
+        
+    }
+    
+    mpd_connection_free(self.conn);
+    [self.songs sortUsingSelector:@selector(compare:)];
+    
+    
+    AppDelegate* app = (AppDelegate*)[UIApplication sharedApplication].delegate;
+    app.Busqueda = nil;
+    /*
+     NSMutableArray *list = [[NSMutableArray alloc] init];
+     self.songs = list;
+     
+     [self initializeConnection];
+     if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
+     {
+     NSLog(@"Connection error");
+     mpd_connection_free(self.conn);
+     [self initializeConnection];
+     return;
+     }
+     
+     const char *cArtist = [artist UTF8String];
+     mpd_command_list_begin(self.conn, true);
+     mpd_search_db_tags(self.conn, MPD_TAG_TITLE);
+     mpd_search_add_tag_constraint(self.conn, MPD_OPERATOR_DEFAULT, MPD_TAG_ARTIST, cArtist);
+     mpd_search_commit(self.conn);
+     mpd_command_list_end(self.conn);
+     
+     struct mpd_pair *pair;
+     
+     
+     while ((pair = mpd_recv_pair_tag(self.conn, MPD_TAG_TITLE)) != NULL)
+     {
+     NSString *songString = [[NSString alloc] initWithUTF8String:pair->value];
+     [self.songs addObject:songString];
+     mpd_return_pair(self.conn, pair);
+     }
+     mpd_enqueue_pair(self.conn, pair);
+     
+     mpd_connection_free(self.conn);
+     [self.songs sortUsingSelector:@selector(compare:)];
+     */
+}
+
+
 -(void)initializeArtistDataList:(NSString *)artist
 {
+    NSMutableArray *list = [[NSMutableArray alloc] init];
+    self.songs = list;
+    
+    NSMutableArray *listid = [[NSMutableArray alloc] init];
+    self.albums = listid;
+    
+      [self initializeConnection];
+     if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
+     {
+     NSLog(@"Connection error");
+     mpd_connection_free(self.conn);
+     [self initializeConnection];
+     return;
+     }
+     
+    const char *cArtist = [artist UTF8String];
+    mpd_command_list_begin(self.conn, true);
+    mpd_search_db_songs(self.conn, true);
+    mpd_search_add_tag_constraint(self.conn, MPD_OPERATOR_DEFAULT, MPD_TAG_ARTIST, cArtist);
+    
+    mpd_search_commit(self.conn);
+     mpd_command_list_end(self.conn);
+    
+    struct mpd_song *song;
+    while((song=mpd_recv_song(self.conn))!=NULL)
+    {
+        char* szText = (char*)mpd_song_get_tag(song, MPD_TAG_TITLE, 0);
+        if (szText == nil) {
+            szText = "Unkown Title";
+        }
+        [self.songs addObject:[[NSString alloc] initWithUTF8String:szText]];
+        
+        char* szTextId = (char*)mpd_song_get_tag(song, MPD_TAG_ALBUM, 0);
+        if (szTextId == nil) {
+            szTextId = "Unkown Id";
+        }
+        
+        [self.albums addObject:[[NSString alloc] initWithUTF8String:szTextId]];
+        
+    }
+    
+    mpd_connection_free(self.conn);
+    [self.songs sortUsingSelector:@selector(compare:)];
+
+    /*
     NSMutableArray *list = [[NSMutableArray alloc] init];
     self.songs = list;
     
@@ -156,13 +300,16 @@
     
     mpd_connection_free(self.conn);
     [self.songs sortUsingSelector:@selector(compare:)];
-    
+    */
 }
 
 -(void)initializeAlbumDataList:(NSString *)album
 {
     NSMutableArray *list = [[NSMutableArray alloc] init];
     self.songs = list;
+    
+    NSMutableArray *listid = [[NSMutableArray alloc] init];
+    self.albums = listid;
     
     [self initializeConnection];
     if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
@@ -177,7 +324,7 @@
     mpd_command_list_begin(self.conn, true);
     mpd_search_db_songs(self.conn, true);
     mpd_search_add_tag_constraint(self.conn, MPD_OPERATOR_DEFAULT, MPD_TAG_ALBUM, cAlbum);
-
+    
     mpd_search_commit(self.conn);
     mpd_command_list_end(self.conn);
     
@@ -189,15 +336,30 @@
             szText = "Unkown Title";
         }
         [self.songs addObject:[[NSString alloc] initWithUTF8String:szText]];
+        
+        char* szTextId = (char*)mpd_song_get_tag(song, MPD_TAG_ALBUM, 0);
+        if (szTextId == nil) {
+            szTextId = "Unkown Id";
+        }
+        
+        [self.albums addObject:[[NSString alloc] initWithUTF8String:szTextId]];
+        
     }
     
     mpd_connection_free(self.conn);
+    [self.songs sortUsingSelector:@selector(compare:)];
 }
 
 //At index functions are used when unsorted
 -(NSString*)songAtIndex:(NSUInteger)row
 {
     return [self.songs objectAtIndex:row];
+}
+
+//At index functions are used when unsorted
+-(NSString*)albumAtIndex:(NSUInteger)row
+{
+    return [self.albums objectAtIndex:row];
 }
 
 

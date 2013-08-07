@@ -70,11 +70,11 @@
     while ((playlist = mpd_recv_playlist(self.conn)) != NULL) {
         NSString *artistString = [[NSString alloc] initWithUTF8String:mpd_playlist_get_path(playlist)];
         [self.playlists addObject:artistString];
-        mpd_playlist_free(playlist);
+       // mpd_playlist_free(playlist);
     }
 
-//    mpd_connection_free(self.conn);
-//    [self.browses sortUsingSelector:@selector(compare:)];
+    mpd_connection_free(self.conn);
+   // [self.playlists sortUsingSelector:@selector(compare:)];
 }
 
 -(void)initializeDataList:(NSString*)strSearch tagtype:(int)type {
@@ -141,6 +141,36 @@
     
     mpd_search_add_any_tag_constraint(self.conn, MPD_OPERATOR_DEFAULT, [[self.playlists objectAtIndex:row] UTF8String]);
     
+    mpd_search_commit(self.conn);
+    mpd_command_list_end(self.conn);
+    mpd_connection_free(self.conn);
+    
+}
+
+-(void)addAlbumAtSectionAndIndexToQueue:(NSUInteger)section row:(NSUInteger)row /*artist:(NSString *)artist */
+{
+    [self initializeConnection];
+    if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
+    {
+        NSLog(@"Connection error");
+        mpd_connection_free(self.conn);
+        [self initializeConnection];
+        return;
+    }
+   /*
+    mpd_command_list_begin(self.conn, true);
+    
+    mpd_search_add_db_songs(self.conn, TRUE);
+    
+    if(artist!=NULL) //we are in an artists list, so add that constraint
+    {
+        mpd_search_add_tag_constraint(self.conn, MPD_OPERATOR_DEFAULT, MPD_TAG_ARTIST, [artist UTF8String]);
+    }
+    if(![[self albumAtSectionAndIndex:section row:row] isEqualToString:@"All"])  //only add album if it is not all
+    {
+        mpd_search_add_tag_constraint(self.conn, MPD_OPERATOR_DEFAULT, MPD_TAG_ALBUM, [[self albumAtSectionAndIndex:section row:row] UTF8String]);
+    }
+    */
     mpd_search_commit(self.conn);
     mpd_command_list_end(self.conn);
     mpd_connection_free(self.conn);

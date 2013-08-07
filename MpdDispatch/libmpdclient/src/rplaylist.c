@@ -37,7 +37,7 @@ mpd_recv_playlist(struct mpd_connection *connection)
 {
 	struct mpd_pair *pair;
 	struct mpd_playlist *playlist;
-
+    NSLog(@"BLABLAU");
 	pair = mpd_recv_pair_named(connection, "playlist");
 	if (pair == NULL)
 		return NULL;
