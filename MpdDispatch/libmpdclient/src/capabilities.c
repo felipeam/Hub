@@ -26,7 +26,7 @@
    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <mpd/capabilities.h>
+#include <capabilities.h>
 #include <mpd/send.h>
 #include <mpd/recv.h>
 

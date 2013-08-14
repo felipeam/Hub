@@ -31,7 +31,7 @@
  *
  */
 
-#include <mpd/stats.h>
+#include <stats.h>
 #include <mpd/send.h>
 #include <mpd/recv.h>
 #include "internal.h"

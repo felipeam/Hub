@@ -30,7 +30,7 @@
    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <mpd/connection.h>
+#include <connection.h>
 #include <mpd/settings.h>
 #include <mpd/async.h>
 #include <mpd/parser.h>
