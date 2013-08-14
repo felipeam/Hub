@@ -181,6 +181,11 @@
     return [sectionArray objectAtIndex:row];
 }
 
+-(NSString*)albumAtIndex:(NSUInteger)row
+{
+    return [self.albums objectAtIndex:row];
+}
+
 -(NSUInteger)albumCount
 {
     return [self.albums count];

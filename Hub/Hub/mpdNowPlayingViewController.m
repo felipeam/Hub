@@ -22,6 +22,8 @@
 @synthesize LabelAlbumSong;
 @synthesize LabelGroupSong;
 @synthesize LabelNameSong;
+@synthesize LabelNameSongMini;
+@synthesize LabelAlbumSongMini;
 @synthesize LabelCurrentTime;
 @synthesize LabelTotalTime;
 @synthesize BotonPlayPause;
@@ -38,6 +40,14 @@
 {
     [super viewDidLoad];
     
+    if (backgroundQueue==NULL) {
+        backgroundQueue = dispatch_queue_create("FON.mpdNowPlayingViewController", NULL);
+    }
+    [self initializeConnection];
+    dispatch_async(backgroundQueue, ^(void) {
+        [self cargarTabla];
+    });
+
     if (g_GameUnit.m_nSelServerPlayer < [g_GameUnit.m_arrayPlayers count]) {
         PlayerInfo* player = [g_GameUnit.m_arrayPlayers objectAtIndex:g_GameUnit.m_nSelServerPlayer];
         mpdConnectionData *globalConnection = [mpdConnectionData sharedManager];
@@ -47,9 +57,12 @@
         globalConnection.port = [[NSNumber alloc] initWithInt:[player.m_strMPDPort intValue]];
     }
     posScreen = 1;
-    [self initializeConnection];
-    [self cargarTabla];
-
+      /*  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self cargarTabla];
+        });
+    });
+*/
     self.m_labelArtist = [[UILabel alloc] initWithFrame:CGRectMake(90, 4, 180, 20)];
     self.m_labelArtist.font = [UIFont systemFontOfSize:14];
     self.m_labelArtist.textAlignment = NSTextAlignmentCenter;
@@ -74,6 +87,8 @@
     [self initSeekView];
     [self.m_viewCover removeFromSuperview];
     
+    self.TableSongs.editing = YES;
+    self.TableSongs.allowsSelectionDuringEditing = YES;
     
        
 }
@@ -99,6 +114,7 @@
     [self changeEditSegImage];
     //Start the timers
     self.updateTimer = [NSTimer scheduledTimerWithTimeInterval: 5.0 target: self selector:@selector(asyncupdate) userInfo: nil repeats:YES];
+  //  self.updateTimerTabla = [NSTimer scheduledTimerWithTimeInterval: 5.0 target: self selector:@selector(asyncupdateTabla) userInfo: nil repeats:YES];
     self.clockTimer = [NSTimer scheduledTimerWithTimeInterval: 1.0 target: self selector:@selector(artificialClock) userInfo: nil repeats:YES];
  //   self.connectTimer = [NSTimer scheduledTimerWithTimeInterval: 1.0 target: self selector:@selector(checkConnnection) userInfo: nil repeats:YES];
    // self.updateTable = [NSTimer scheduledTimerWithTimeInterval: 3.0 target: self selector:@selector(cargarTabla) userInfo: nil repeats:YES];
@@ -175,11 +191,9 @@
     });
 }
 
-//Called every 5 seconds to sync with database info.
--(void)updateView
-{    
-//    [self initializeConnection];
-    NSLog(@"%s\n", __func__);
+
+-(void)asyncupdateTabla
+{
     if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
     {
         NSLog(@"Connection error - %d", mpd_connection_get_error(self.conn));
@@ -196,11 +210,54 @@
         self.isConnected = NO;
         return;
     }
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    if(posScreen == 2)
+    {
+        if (backgroundQueue==NULL) {
+            backgroundQueue = dispatch_queue_create("FON.mpdNowPlayingViewController", NULL);
+        }
+        [self initializeConnection];
+        dispatch_async(backgroundQueue, ^(void) {
+            [self cargarTabla];
+        });
+        
+    }
+
+
+    /*dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
         dispatch_async(dispatch_get_main_queue(), ^{
             [self cargarTabla];
         });
-    });
+    }); */
+
+
+}
+//Called every 5 seconds to sync with database info.
+-(void)updateView
+{    
+    [self initializeConnection];
+    NSLog(@"%s\n", __func__);
+    if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
+    {
+        NSLog(@"Connection error - %d", mpd_connection_get_error(self.conn));
+        mpd_connection_free(self.conn);
+        [self initializeConnection];
+        self.m_labelArtist.text = @"No Conectado";
+        self.m_labelAlbum.text = @"";
+        
+        LabelNameSong.text = @"No Conectado";
+        LabelAlbumSong.text = @"";
+        LabelGroupSong.text = @"";
+        
+        LabelNameSongMini.text = @"No Conectado";
+        LabelAlbumSongMini.text = @"";
+        
+        self.isConnected = NO;
+        return;
+    }
+    
+    NSLog(@"ERROR CONNECTION: %u",mpd_connection_get_error(self.conn));
+    
+    
 
     
     
@@ -226,140 +283,171 @@
         LabelAlbumSong.text = @"";
         LabelGroupSong.text = @"";
         
+        LabelNameSongMini.text = @"No Conectado";
+        LabelAlbumSongMini.text = @"";
+        
         return;
     }
     else{
-        //get all of our status and song info
-//        [self.volume setValue:mpd_status_get_volume(status)];
-        self.currentTime = mpd_status_get_elapsed_time(status);
-        
-        int seconds = self.currentTime % 60;
-        int minutes = (self.currentTime - seconds) / 60;
-        
-        LabelCurrentTime.text =  [NSString stringWithFormat:@"%d:%.2d", minutes, seconds];//[@(mpd_status_get_elapsed_time(status)) stringValue];
-        
-        self.totalTime = mpd_status_get_total_time(status);
-
-        
-        seconds = self.totalTime % 60;
-        minutes = (self.totalTime - seconds) / 60;
-
-        
-        LabelTotalTime.text = [NSString stringWithFormat:@"%d:%.2d", minutes, seconds];//[@(mpd_status_get_total_time(status)) stringValue];
-        
-//        self.curPos.text = [NSString stringWithFormat:@"%u:%02u", self.currentTime/60,self.currentTime%60];
-        self.totalTime = mpd_status_get_total_time(status);
-//        self.totTime.text = [NSString stringWithFormat:@"%u:%02u",self.totalTime/60,self.totalTime%60 ];
-//        self.progressSlider.maximumValue = self.totalTime;
-//        self.progressSlider.value = self.currentTime;
-
-        enum mpd_state playerState;
-        //If playing or paused, load all song info.  Else clear all fields.
-        if((playerState= mpd_status_get_state(status)) == MPD_STATE_PLAY || mpd_status_get_state(status) == MPD_STATE_PAUSE)
+        if(posScreen == 2)
         {
-            if(playerState==MPD_STATE_PAUSE)
+            if (backgroundQueue==NULL) {
+                backgroundQueue = dispatch_queue_create("FON.mpdNowPlayingViewController", NULL);
+            }
+            [self initializeConnection];
+            dispatch_async(backgroundQueue, ^(void) {
+                [self cargarTabla];
+            });
+        }
+        else
+        {
+            //get all of our status and song info
+            //        [self.volume setValue:mpd_status_get_volume(status)];
+            self.currentTime = mpd_status_get_elapsed_time(status);
+            
+            int seconds = self.currentTime % 60;
+            int minutes = (self.currentTime - seconds) / 60;
+            
+            LabelCurrentTime.text =  [NSString stringWithFormat:@"%d:%.2d", minutes, seconds];//[@(mpd_status_get_elapsed_time(status)) stringValue];
+            
+            self.totalTime = mpd_status_get_total_time(status);
+            
+            
+            seconds = self.totalTime % 60;
+            minutes = (self.totalTime - seconds) / 60;
+            
+            
+            LabelTotalTime.text = [NSString stringWithFormat:@"%d:%.2d", minutes, seconds];//[@(mpd_status_get_total_time(status)) stringValue];
+            
+            //        self.curPos.text = [NSString stringWithFormat:@"%u:%02u", self.currentTime/60,self.currentTime%60];
+            self.totalTime = mpd_status_get_total_time(status);
+            //        self.totTime.text = [NSString stringWithFormat:@"%u:%02u",self.totalTime/60,self.totalTime%60 ];
+            //        self.progressSlider.maximumValue = self.totalTime;
+            //        self.progressSlider.value = self.currentTime;
+            
+            enum mpd_state playerState;
+            //If playing or paused, load all song info.  Else clear all fields.
+            if((playerState= mpd_status_get_state(status)) == MPD_STATE_PLAY || mpd_status_get_state(status) == MPD_STATE_PAUSE)
             {
-//                self.play.image =[UIImage imageNamed:@"play.png"];
-                self.playing = false;
-                self.m_labelArtist.text = @"Paused";
-                self.m_labelAlbum.text = @"";
+                if(playerState==MPD_STATE_PAUSE)
+                {
+                    //                self.play.image =[UIImage imageNamed:@"play.png"];
+                    self.playing = false;
+                    self.m_labelArtist.text = @"Paused";
+                    self.m_labelAlbum.text = @"";
+                    [BotonPlayPause setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateNormal];
+                    [self.m_btnPlayMini setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateNormal];
+                    
+                                   }
+                else
+                {
+                    //                self.play.image = [UIImage imageNamed:@"pause.png"];
+                    //                self.m_labelArtist.text = @"Not connected to MPD Server";
+                    //                self.m_labelAlbum.text = @"";
+                    self.playing = true;
+                    [BotonPlayPause setImage:[UIImage imageNamed:@"pause.png"] forState:UIControlStateNormal];
+                    [self.m_btnPlayMini setImage:[UIImage imageNamed:@"pause.png"] forState:UIControlStateNormal];
+                }
+                
+                if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
+                {
+                    NSLog(@"Connection error free");
+                    mpd_connection_free(self.conn);
+                    [self initializeConnection];
+                    return;
+                }
+                //            mpd_response_next(self.conn);
+                //            song = mpd_recv_song(self.conn);
+                song = mpd_run_current_song(self.conn);
+                // NSLog(@"uri = %s", mpd_song_get_uri(song));
+                //These are all wrapped in try catch statements because if the tag is empty, the
+                //function doesn't handle well
+                if(song!=NULL)
+                {
+                    @try {
+                        char* szText = (char*)mpd_song_get_tag(song, MPD_TAG_ARTIST, 0);
+                        if (szText == nil) {
+                            szText = "Artista desconocido";
+                        }
+                        self.m_labelArtist.text = [[NSString alloc] initWithUTF8String:szText];
+                        
+                        
+                        LabelGroupSong.text = [[NSString alloc] initWithUTF8String:szText];
+                        
+                    }
+                    @catch (NSException *e) {
+                        self.m_labelArtist.text = @"";
+                        LabelGroupSong.text = @"";
+                    }
+                    @try {
+                        //                self.albumText.text = [[NSString alloc] initWithUTF8String:mpd_song_get_tag(song, MPD_TAG_ALBUM, 0)];
+                        char* szText = (char*)mpd_song_get_tag(song, MPD_TAG_ALBUM, 0);
+                        if (szText == nil) {
+                            szText = "Album desconocido";
+                        }
+                        
+                        LabelAlbumSong.text = [[NSString alloc] initWithUTF8String:szText];
+                        LabelAlbumSongMini.text = [[NSString alloc] initWithUTF8String:szText];
+                        self.m_labelAlbum.text = [[NSString alloc] initWithUTF8String:szText];
+                    }
+                    @catch (NSException *e) {
+                        
+                        self.m_labelAlbum.text = @"";
+                        LabelAlbumSong.text = @"";
+                        LabelAlbumSongMini.text = @"";
+                    }
+                    @try {
+                        
+                        char* szText = (char*)mpd_song_get_tag(song, MPD_TAG_TITLE, 0);
+                        if (szText == nil) {
+                            szText = "Canción desconocida";
+                        }
+                        
+                        LabelNameSong.text = [[NSString alloc] initWithUTF8String:szText];
+                        LabelNameSongMini.text = [[NSString alloc] initWithUTF8String:szText];
+                        
+                        //                NSMutableString *trackString=[[NSMutableString alloc] initWithUTF8String:mpd_song_get_tag(song, MPD_TAG_TRACK, 0)];
+                        //                [trackString appendString:@" of "];
+                        //                [trackString appendString:[NSString stringWithFormat:@"%d",[self maxTrackNum:self.artistText.text album:self.albumText.text]]];
+                        //                self.trackText.text = trackString;
+                    }
+                    @catch (NSException *e) {
+                        LabelNameSong.text = @"";
+                        LabelNameSongMini.text = @"";
+                        //                self.trackText.text = @"";
+                    }
+                }
+                //kgh
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self getArtwork];
+                        [self.m_imageThumb setImage:self.artwork];
+                        [self.m_imageThumbMini setImage:self.artwork];
+                    });
+                });
+                
+                //            mpd_song_free(song);
             }
             else
             {
-//                self.play.image = [UIImage imageNamed:@"pause.png"];
-//                self.m_labelArtist.text = @"Not connected to MPD Server";
-//                self.m_labelAlbum.text = @"";
-                self.playing = true;
-            }
-            
-            if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
-            {
-                NSLog(@"Connection error free");
-                mpd_connection_free(self.conn);
-                [self initializeConnection];
-                return;
-            }
-//            mpd_response_next(self.conn);
-//            song = mpd_recv_song(self.conn);
-            song = mpd_run_current_song(self.conn);
-            NSLog(@"uri = %s", mpd_song_get_uri(song));
-            //These are all wrapped in try catch statements because if the tag is empty, the
-            //function doesn't handle well
-            @try {
-                char* szText = (char*)mpd_song_get_tag(song, MPD_TAG_ARTIST, 0);
-                if (szText == nil) {
-                    szText = "Artista desconocido";
-                }
-                self.m_labelArtist.text = [[NSString alloc] initWithUTF8String:szText];
-                
-                
-                LabelGroupSong.text = [[NSString alloc] initWithUTF8String:szText];
-                
-            }
-            @catch (NSException *e) {
-                self.m_labelArtist.text = @"";
-                LabelGroupSong.text = @"";
-            }
-            @try {
-//                self.albumText.text = [[NSString alloc] initWithUTF8String:mpd_song_get_tag(song, MPD_TAG_ALBUM, 0)];
-                char* szText = (char*)mpd_song_get_tag(song, MPD_TAG_ALBUM, 0);
-                if (szText == nil) {
-                    szText = "Album desconocido";
-                }
-                
-                LabelAlbumSong.text = [[NSString alloc] initWithUTF8String:szText];
-                self.m_labelAlbum.text = [[NSString alloc] initWithUTF8String:szText];
-            }
-            @catch (NSException *e) {
-            
+                //            self.songTitle.text = @"Stopped";
+                //            self.artistText.text = @"";
+                //            self.albumText.text = @"";
+                //            self.trackText.text = @"";
+                self.m_labelArtist.text = @"Stopped";
                 self.m_labelAlbum.text = @"";
-                LabelAlbumSong.text = @"";
+                self.playing=false;
             }
-            @try {
+            //        mpd_status_free(status);
+            UIImage* img;
+            if (self.playing)
+                img = [UIImage imageNamed:@"pause-small.png"];
+            else
+                img = [UIImage imageNamed:@"play-small.png"];
+            [self.m_segmentPlay setImage:img forSegmentAtIndex:2];
                 
-                char* szText = (char*)mpd_song_get_tag(song, MPD_TAG_TITLE, 0);
-                if (szText == nil) {
-                    szText = "Canción desconocida";
-                }
-                
-                LabelNameSong.text = [[NSString alloc] initWithUTF8String:szText];
-                
-//                NSMutableString *trackString=[[NSMutableString alloc] initWithUTF8String:mpd_song_get_tag(song, MPD_TAG_TRACK, 0)];
-//                [trackString appendString:@" of "];
-//                [trackString appendString:[NSString stringWithFormat:@"%d",[self maxTrackNum:self.artistText.text album:self.albumText.text]]];
-//                self.trackText.text = trackString;
-            }
-            @catch (NSException *e) {
-                LabelNameSong.text = @"";
-//                self.trackText.text = @"";
-            }
-            //kgh
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self getArtwork];
-                    [self.m_imageThumb setImage:self.artwork];
-                });
-            });
-           
-//            mpd_song_free(song);
+       
         }
-        else
-        {
-//            self.songTitle.text = @"Stopped";
-//            self.artistText.text = @"";
-//            self.albumText.text = @"";
-//            self.trackText.text = @"";
-            self.m_labelArtist.text = @"Stopped";
-            self.m_labelAlbum.text = @"";
-            self.playing=false;
-        }
-//        mpd_status_free(status);
-        UIImage* img;
-        if (self.playing)
-            img = [UIImage imageNamed:@"pause-small.png"];
-        else
-            img = [UIImage imageNamed:@"play-small.png"];
-        [self.m_segmentPlay setImage:img forSegmentAtIndex:2];
     }
 //    mpd_connection_free(self.conn);
 //    [self.m_tableView reloadData];
@@ -394,7 +482,8 @@
             newArtwork = [[UIImage alloc] initWithData:data];
         }
         else {
-            newArtwork = [UIImage imageNamed:@"unknowncover.png"];
+            newArtwork = [UIImage imageNamed:@"no_cover.png"];
+            NSLog(@"imagen Artwork: %@",newArtwork);
         }
         self.artwork = newArtwork;
     }
@@ -760,6 +849,44 @@
     */
 }
 
+- (IBAction)CellButtonClick:(id)sender {
+    
+    
+    CGPoint buttonPosition = [sender convertPoint:CGPointZero toView:TableSongs];
+    NSIndexPath *indexPath = [TableSongs indexPathForRowAtPoint:buttonPosition];
+    if (indexPath != nil)
+    {
+        AppDelegate* app = (AppDelegate*)[UIApplication sharedApplication].delegate;
+        UIActionSheet* sheet = [[UIActionSheet alloc] initWithTitle:@"" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Skip to here", @"Play next", @"Move to first", @"Move to last", @"Remove from playlist",nil];
+        [sheet showInView:app.window];
+    }
+
+
+}
+
+
+- (void) actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    if (buttonIndex == 0) {
+        
+    }
+    else if (buttonIndex == 1) {
+                
+        
+    }
+    else if (buttonIndex == 2) {
+        
+    }
+    else if (buttonIndex == 3) {
+        
+        
+    }
+    else if (buttonIndex == 4) {
+        
+        
+    }
+}
+
+
 -(IBAction)segmentSettingsClick:(id)sender {
   /*  UISegmentedControl* seg = (UISegmentedControl*)sender;
     if (seg.selectedSegmentIndex == 0) {
@@ -937,7 +1064,7 @@
         img = [UIImage imageNamed:@"random-off.png"];
     [self.m_segmentEdit setImage:img forSegmentAtIndex:1];
 }
-
+/*
 - (void) actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
     if (buttonIndex == 0) {
         self.m_tableView.editing = YES;
@@ -946,6 +1073,7 @@
         [self clearQueue:nil];
     }
 }
+ */
 - (void) initVolumeView {
     self.m_viewVolume.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.2];
     CGFloat x, y, w, h;
@@ -1016,12 +1144,15 @@
     [self.m_sliderProgress setThumbImage:[UIImage imageNamed:@"slidercenter.png"] forState:UIControlStateNormal];
     [self.m_sliderProgress setMinimumTrackImage:[UIImage imageNamed:@"sliderlefthand.png"] forState:UIControlStateNormal];
     [self.m_sliderProgress setMaximumTrackImage:[UIImage imageNamed:@"sliderrighthand.png"] forState:UIControlStateNormal];
+    [self.m_sliderProgress setThumbImage:[UIImage imageNamed:@"slidercenter@2x.png"] forState:UIControlStateHighlighted];
+    
     [self setCoverImage];
 }
 - (void) setCoverImage {
-    UIImage* image = [UIImage imageNamed:@"speakerlarge.png"];
+    UIImage* image = [UIImage imageNamed:@"no_cover.png"];
   //  UIImage* imgRe = [image addImageReflection:0.4];
     [self.m_imageThumb setImage:image];
+    [self.m_imageThumbMini setImage:image];
 }
 - (void) showSeekView {
 //    [UIView transitionWithView:self.m_viewCover
@@ -1073,7 +1204,7 @@
 {
     NSInteger pos;
     NSLog(@"%s\n", __func__);
-//    [self initializeConnection];
+    [self initializeConnection];
     if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
     {
         NSLog(@"Connection error - %d", mpd_connection_get_error(self.conn));
@@ -1116,6 +1247,16 @@
     {
         [self.m_tableView reloadData];
     }
+    int contador = 0;
+    while (self.rowCount>[SongTitle count]) {
+        
+        sleep(2);
+        if (contador>0) {
+            [self cargarTabla];
+        }
+        contador++;
+    }
+    
     
     if(indexPath.row <[tableView numberOfRowsInSection:0])
     {
@@ -1136,9 +1277,17 @@
              
       
         UILabel* labelTitle = (UILabel*)[cell.contentView viewWithTag:2];
-
-              
-        labelTitle.text = [[SongTitle objectAtIndex:indexPath.row] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        UILabel* labelAlbum = (UILabel*)[cell.contentView viewWithTag:3];
+        
+        NSLog(@"SONGS COUNT %i",[SongTitle count]);
+        NSLog(@"indexPath %i",indexPath.row);
+        
+        if([SongTitle count]>indexPath.row)
+        {
+            labelTitle.text = [[SongTitle objectAtIndex:indexPath.row] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+            labelAlbum.text = [[SongAlbum objectAtIndex:indexPath.row] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        }
+        
       
   /*       UILabel* labelArtist = (UILabel*)[cell.contentView viewWithTag:3];
 
@@ -1178,10 +1327,39 @@
 // Override to support conditional editing of the table view.
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return NO;
+    return YES;
+}
+
+- (void) tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [cell setBackgroundColor:[UIColor darkGrayColor]];
+    for(UIView* view in cell.subviews)
+    {
+        if([[[view class] description] isEqualToString:@"UITableViewCellReorderControl"])
+        {
+            // Creates a new subview the size of the entire cell
+            UIView *movedReorderControl = [[UIView alloc] initWithFrame:CGRectMake(0, 0, CGRectGetMaxX(view.frame), CGRectGetMaxY(view.frame))];
+            // Adds the reorder control view to our new subview
+            [movedReorderControl addSubview:view];
+            // Adds our new subview to the cell
+            [cell addSubview:movedReorderControl];
+            // CGStuff to move it to the left
+            NSLog(@"pos MOVE: %f",movedReorderControl.frame.size.width - view.frame.size.width);
+            CGSize moveLeft = CGSizeMake(277.000000, movedReorderControl.frame.size.height - view.frame.size.height);
+            CGAffineTransform transform = CGAffineTransformIdentity;
+            transform = CGAffineTransformTranslate(transform, -moveLeft.width, -moveLeft.height);
+            // Performs the transform
+            [movedReorderControl setTransform:transform];
+        }
+    }
 }
 
 
+
+- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return UITableViewCellEditingStyleNone;
+}
 
 // Override to support editing the table view.
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
@@ -1240,7 +1418,10 @@
 //Plays song at that position
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-//    [self initializeConnection];
+    CGPoint hitPoint = [[tableView cellForRowAtIndexPath:indexPath] convertPoint:CGPointZero toView:tableView];
+    NSIndexPath *hitIndex = [tableView indexPathForRowAtPoint:hitPoint];
+    
+    [self initializeConnection];
     if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
     {
         NSLog(@"Connection error");
@@ -1250,7 +1431,7 @@
     }
     
     mpd_run_play_pos(self.conn,indexPath.row);
-//    mpd_connection_free(self.conn);
+    mpd_connection_free(self.conn);
     [self.m_tableView reloadData];
 }
 
@@ -1315,6 +1496,8 @@
     [self.m_tableView reloadData];
 }
 
+
+
 - (void) deleteQueue:(int)pos {
 //    [self initializeConnection];
     if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
@@ -1342,8 +1525,8 @@
     if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
     {
         NSLog(@"Connection error");
-        //            mpd_connection_free(self.conn);
-        //            [self initializeConnection];
+        mpd_connection_free(self.conn);
+        [self initializeConnection];
         
     }
     else
@@ -1386,6 +1569,10 @@
             //    mpd_status_free(status);
             self.prevRowCount = self.rowCount;
             self.rowCount = pos;
+            
+           SongTitle = [[NSMutableArray alloc] init];
+           SongAlbum = [[NSMutableArray alloc] init];
+                        
             NSMutableArray * SongTitle_tmp = [[NSMutableArray alloc] init];
             NSMutableArray * SongArtist_tmp = [[NSMutableArray alloc] init];
             NSMutableArray * SongTime_tmp = [[NSMutableArray alloc] init];
@@ -1396,38 +1583,47 @@
                 nextSong=mpd_run_get_queue_song_pos(self.conn, x);
                 //        [[cell detailTextLabel] setText:[[NSString alloc] initWithUTF8String:mpd_song_get_tag(nextSong, MPD_TAG_ARTIST, 0)]];
                 //        [[cell textLabel] setText:[[NSString alloc] initWithUTF8String:mpd_song_get_tag(nextSong, MPD_TAG_TITLE, 0)]];
+                if(nextSong!=NULL)
+                {
+                    char* szTitle = (char*)mpd_song_get_tag(nextSong, MPD_TAG_TITLE, 0);
+                    if (szTitle == nil) {
+                        szTitle = "Unkown Title";
+                    }
+                 //   [SongTitle_tmp addObject:[[NSString alloc] initWithUTF8String:szTitle]];
+                    [SongTitle addObject:[[NSString alloc] initWithUTF8String:szTitle]];
+                    
+                    char* szAlbum = (char*)mpd_song_get_tag(nextSong, MPD_TAG_ALBUM, 0);
+                    if (szAlbum == nil) {
+                        szAlbum = "Album desconocido";
+                    }
+                    
+                    [SongAlbum addObject:[[NSString alloc] initWithUTF8String:szAlbum]];
+                    
+                    char* szArtist = (char*)mpd_song_get_tag(nextSong, MPD_TAG_ARTIST, 0);
+                    if (szArtist == nil)
+                        szArtist = "Unkown Aritist";
+                    //  labelArtist.text = [[NSString alloc] initWithUTF8String:szArtist];
+                    
+                    [SongArtist_tmp addObject:[[NSString alloc] initWithUTF8String:szArtist]];
+                    
+                    //   UILabel* labelTime = (UILabel*)[cell.contentView viewWithTag:4];
+                    int totalTime = mpd_song_get_duration(nextSong);
+                    [SongTime_tmp addObject:[NSString stringWithFormat:@"%u:%02u", totalTime/60, totalTime%60 ]];
+                    //   labelTime.text = [NSString stringWithFormat:@"%u:%02u", totalTime/60, totalTime%60 ];
+                    
+                    // struct mpd_status * status;
+                    
+                    // status = mpd_run_status(self.conn);
+                    [SongStatus_tmp addObject:[NSNumber numberWithInteger:mpd_status_get_song_pos(status)]];
                 
-                char* szTitle = (char*)mpd_song_get_tag(nextSong, MPD_TAG_TITLE, 0);
-                if (szTitle == nil) {
-                    szTitle = "Unkown Title";
                 }
-                [SongTitle_tmp addObject:[[NSString alloc] initWithUTF8String:szTitle]];
-                
-                
-                char* szArtist = (char*)mpd_song_get_tag(nextSong, MPD_TAG_ARTIST, 0);
-                if (szArtist == nil)
-                    szArtist = "Unkown Aritist";
-                //  labelArtist.text = [[NSString alloc] initWithUTF8String:szArtist];
-                
-                [SongArtist_tmp addObject:[[NSString alloc] initWithUTF8String:szArtist]];
-                
-                //   UILabel* labelTime = (UILabel*)[cell.contentView viewWithTag:4];
-                int totalTime = mpd_song_get_duration(nextSong);
-                [SongTime_tmp addObject:[NSString stringWithFormat:@"%u:%02u", totalTime/60, totalTime%60 ]];
-                //   labelTime.text = [NSString stringWithFormat:@"%u:%02u", totalTime/60, totalTime%60 ];
-                
-                // struct mpd_status * status;
-                
-                // status = mpd_run_status(self.conn);
-                [SongStatus_tmp addObject:[NSNumber numberWithInteger:mpd_status_get_song_pos(status)]];
-                
                 
                 
             }
             //  NSLog(@"%@",self.SongArtist);
             
             SongTime = SongTime_tmp;
-            SongTitle = SongTitle_tmp;
+       //     SongTitle = SongTitle_tmp;
             SongArtist = SongArtist_tmp;
             SongStatus = SongStatus_tmp;
             
@@ -1462,7 +1658,7 @@
              [internalElement addObject:[json valueForKey:@"fechainicio"]];
              [internalElement addObject:[json valueForKey:@"fechafin"]];
              */
-            
+            [self.m_tableView reloadData];
             
             
             //      NSLog(@"%lu",(unsigned long)[internalElement count]);
@@ -1489,7 +1685,7 @@
         
         [UIView animateWithDuration:.3f animations:^{
             CGRect theFrame = VistaMenu.frame;
-            theFrame.origin.x = -279.f;
+            theFrame.origin.x = -280.f;
             
             VistaMenu.frame = theFrame;
             
@@ -1559,6 +1755,10 @@
             
             
         }];
+        [buttonHublist setBackgroundImage:[UIImage imageNamed:@"fondo_btn_pie.png"] forState:UIControlStateNormal];
+        [buttonHublist setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [buttonNowPlaying setBackgroundImage:[UIImage imageNamed:@"fondo_btn_pie_unselect.png"] forState:UIControlStateNormal];
+        [buttonNowPlaying setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
 
         
         posScreen = 2;
@@ -1647,7 +1847,10 @@
             
         }];
 
-        
+        [buttonNowPlaying setBackgroundImage:[UIImage imageNamed:@"fondo_btn_pie.png"] forState:UIControlStateNormal];
+        [buttonNowPlaying setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [buttonHublist setBackgroundImage:[UIImage imageNamed:@"fondo_btn_pie_unselect.png"] forState:UIControlStateNormal];
+        [buttonHublist setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
         posScreen = 1;
         
     }
@@ -1693,6 +1896,10 @@
         
     }];
     
+    [buttonNowPlaying setBackgroundImage:[UIImage imageNamed:@"fondo_btn_pie.png"] forState:UIControlStateNormal];
+    [buttonNowPlaying setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [buttonHublist setBackgroundImage:[UIImage imageNamed:@"fondo_btn_pie_unselect.png"] forState:UIControlStateNormal];
+    [buttonHublist setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
     
     posScreen = 1;
     
@@ -1738,16 +1945,153 @@
         
     }];
     
+    [buttonHublist setBackgroundImage:[UIImage imageNamed:@"fondo_btn_pie.png"] forState:UIControlStateNormal];
+    [buttonHublist setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [buttonNowPlaying setBackgroundImage:[UIImage imageNamed:@"fondo_btn_pie_unselect.png"] forState:UIControlStateNormal];
+    [buttonNowPlaying setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
     
     posScreen = 2;
 
     
 }
 
+- (IBAction)ActionBuscar:(id)sender {
+    [UIView animateWithDuration:.3f animations:^{
+        CGRect theFrame = VistaPrincipal.frame;
+        theFrame.origin.x = 0.f;
+        
+        VistaPrincipal.frame = theFrame;
+        
+        
+    }];
+    
+    [UIView animateWithDuration:.3f animations:^{
+        CGRect theFrame = VistaMenu.frame;
+        theFrame.origin.x = -280.f;
+        
+        VistaMenu.frame = theFrame;
+        
+        
+    }];
+    
+    [UIButton animateWithDuration:.3f animations:^{
+        CGRect theFrame = buttonNowPlaying.frame;
+        theFrame.origin.x = 104.f;
+        
+        buttonNowPlaying.frame = theFrame;
+        
+        
+    }];
+    
+    [UIButton animateWithDuration:.3f animations:^{
+        CGRect theFrame = buttonHublist.frame;
+        theFrame.origin.x = 235.f;
+        
+        buttonHublist.frame = theFrame;
+        
+        
+    }];
+    
+    [UIView animateWithDuration:.3f animations:^{
+        CGRect theFrame = _VistaBuscar.frame;
+        theFrame.origin.x = 0.f;
+        
+        _VistaBuscar.frame = theFrame;
+        
+        
+    }];
+    
+    posScreen = 1;
+}
+
+- (IBAction)CerrarBusqueda:(id)sender {
+    [UIView animateWithDuration:.3f animations:^{
+        CGRect theFrame = _VistaBuscar.frame;
+        theFrame.origin.x = -320.f;
+        
+        _VistaBuscar.frame = theFrame;
+        
+        
+    }];
+    
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField{
+    [textField resignFirstResponder];
+    [UIView animateWithDuration:.3f animations:^{
+        CGRect theFrame = _VistaBuscar.frame;
+        theFrame.origin.x = -320.f;        
+        _VistaBuscar.frame = theFrame;        
+        
+    }];
+    
+    if(![textField.text isEqualToString:@""])
+    {
+        AppDelegate* app = (AppDelegate*)[UIApplication sharedApplication].delegate;
+        app.Busqueda = textField.text;
+        [_BotonBuscarVista sendActionsForControlEvents: UIControlEventTouchUpInside];
+    }
+    return YES;
+    
+}
+
+- (IBAction)showMenuconfig:(id)sender {
+    [UIView animateWithDuration:.3f animations:^{
+        CGRect theFrame = VistaPrincipal.frame;
+        theFrame.origin.x = 279.f;
+        
+        VistaPrincipal.frame = theFrame;
+        
+        
+    }];
+    
+    [UIView animateWithDuration:.3f animations:^{
+        CGRect theFrame = VistaMenu.frame;
+        theFrame.origin.x = 0.f;
+        
+        VistaMenu.frame = theFrame;
+        
+        
+    }];
+    
+    [UIView animateWithDuration:.3f animations:^{
+        CGRect theFrame = VistaListado.frame;
+        theFrame.origin.x = 320.f;
+        
+        VistaListado.frame = theFrame;
+        
+        
+    }];
+    
+    
+    [UIButton animateWithDuration:.3f animations:^{
+        CGRect theFrame = buttonNowPlaying.frame;
+        theFrame.origin.x = 383.f;
+        
+        buttonNowPlaying.frame = theFrame;
+        
+        
+    }];
+    
+    [UIButton animateWithDuration:.3f animations:^{
+        CGRect theFrame = buttonHublist.frame;
+        theFrame.origin.x = 504.f;
+        
+        buttonHublist.frame = theFrame;
+        
+        
+    }];
+    
+    posScreen = 0;
+
+}
+
+// Override to support conditional editing of the table view.
+
 
 
 - (void)dealloc {
-
+    dispatch_release(backgroundQueue);
     [LabelGroupSong release];
     [LabelNameSong release];
     [LabelAlbumSong release];
@@ -1760,6 +2104,14 @@
     [buttonNowPlaying release];
     [buttonHublist release];
     [TableSongs release];
+    
+    [LabelNameSongMini release];
+    [LabelAlbumSongMini release];
+    [_m_imageThumbMini release];
+    [_m_btnPlayMini release];
+    [_VistaBuscar release];
+    [_BotonLibrary release];
+    [_BotonBuscarVista release];
     [super dealloc];
 }
 @end

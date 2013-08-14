@@ -30,4 +30,6 @@
 
 -(void)initializeDataList:(NSString*)strSearch tagtype:(int)type;
 
+-(void)addAlbumAtSectionAndIndexToQueue:(NSUInteger)section row:(NSUInteger)row /*artist:(NSString *)artist*/;
+
 @end

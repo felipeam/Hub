@@ -10,16 +10,22 @@
 #import <mpd/client.h>
 #import <mpd/status.h>
 #import "mpdConnectionData.h"
+#import <dispatch/dispatch.h>
 
-@interface mpdNowPlayingViewController : UIViewController<UITableViewDataSource, UITableViewDelegate, UIActionSheetDelegate>
+@interface mpdNowPlayingViewController : UIViewController<UITableViewDataSource, UITableViewDelegate, UIActionSheetDelegate, UIActionSheetDelegate>
 {
     NSMutableArray *SongTitle;
+    NSMutableArray *SongAlbum;
     NSMutableArray *SongArtist;
     NSMutableArray *SongTime;
     NSMutableArray *SongStatus;
+    dispatch_queue_t backgroundQueue;
 }
 
+
+
 @property (nonatomic,retain) NSArray *SongTitle;
+@property (nonatomic,retain) NSArray *SongAlbum;
 @property (nonatomic,retain) NSArray *SongArtist;
 @property (nonatomic,retain) NSArray *SongTime;
 @property (nonatomic,retain) NSArray *SongStatus;
@@ -50,8 +56,10 @@
 //cover view
 @property (strong, nonatomic) IBOutlet UIView *m_viewCover;
 @property (strong, nonatomic) IBOutlet UIImageView *m_imageThumb;
+@property (retain, nonatomic) IBOutlet UIImageView *m_imageThumbMini;
 @property (strong, nonatomic) IBOutlet UIView *m_viewSeek;
 @property (strong, nonatomic) IBOutlet UIButton *m_btnPlay;
+@property (retain, nonatomic) IBOutlet UIButton *m_btnPlayMini;
 @property (strong, nonatomic) IBOutlet UIButton *m_btnStop;
 @property (strong, nonatomic) IBOutlet UISlider *m_sliderProgress;
 
@@ -68,6 +76,10 @@
 @property (retain, nonatomic) IBOutlet UILabel *LabelGroupSong;
 @property (retain, nonatomic) IBOutlet UILabel *LabelNameSong;
 @property (retain, nonatomic) IBOutlet UILabel *LabelAlbumSong;
+@property (retain, nonatomic) IBOutlet UILabel *LabelNameSongMini;
+@property (retain, nonatomic) IBOutlet UILabel *LabelAlbumSongMini;
+
+
 @property (retain, nonatomic) IBOutlet UILabel *LabelCurrentTime;
 @property (retain, nonatomic) IBOutlet UILabel *LabelTotalTime;
 @property (retain, nonatomic) IBOutlet UIButton *BotonPlayPause;
@@ -84,6 +96,7 @@
 //Timers
 @property NSTimer *connectTimer;
 @property NSTimer *updateTimer;
+@property NSTimer *updateTimerTabla;
 @property NSTimer *clockTimer;
 @property NSTimer *updateTable;
 
@@ -107,9 +120,13 @@
 @property int m_nVolume;
 
 @property BOOL m_bShowCover;
+@property (retain, nonatomic) IBOutlet UIView *VistaBuscar;
+@property (retain, nonatomic) IBOutlet UIButton *BotonLibrary;
+@property (retain, nonatomic) IBOutlet UIButton *BotonBuscarVista;
 
 //Actions
 -(IBAction)clearQueue:(id)sender;
+- (IBAction)showMenuconfig:(id)sender;
 
 //Actions
 -(IBAction)playPausePush:(id)sender;
@@ -120,6 +137,8 @@
 - (IBAction)RepeatSong:(id)sender;
 - (IBAction)ActionNowPlaying:(id)sender;
 - (IBAction)ActionHublist:(id)sender;
+- (IBAction)ActionBuscar:(id)sender;
+- (IBAction)CerrarBusqueda:(id)sender;
 
 
 
@@ -132,6 +151,7 @@
 -(IBAction)positionValueChanged:(UISlider *)sender;
 -(void)artClick:(id)sender;
 -(void)artistClick:(id)sender;
+- (IBAction)CellButtonClick:(id)sender;
 
 //setting action
 -(IBAction)segmentSettingsClick:(id)sender;

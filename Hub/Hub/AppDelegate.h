@@ -25,4 +25,9 @@
 
 @property (strong, nonatomic) NSString *DefaultHost;
 
+@property (strong, nonatomic) NSIndexPath *PosTablaClick;
+@property (strong, nonatomic) NSString *NomArtistTablaClick;
+@property (strong, nonatomic) NSString *NomAlbumTablaClick;
+@property (strong, nonatomic) NSString *Busqueda;
+
 @end

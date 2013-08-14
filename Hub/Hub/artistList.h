@@ -23,6 +23,7 @@
 
 //Functions
 -(NSString*)artistAtSectionAndIndex:(NSUInteger)section row:(NSUInteger)row;
+-(NSString*)artistAtIndex:(NSUInteger)row;
 -(NSUInteger)artistCount;
 -(void)addArtistAtSectionAndIndexToQueue:(NSUInteger)section row:(NSUInteger)row;
 -(NSArray*)sectionArray:(NSUInteger)section;
