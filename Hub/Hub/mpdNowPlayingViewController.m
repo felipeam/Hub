@@ -167,16 +167,19 @@
 //released each time.
 -(void)initializeConnection
 {
-    NSLog(@"%s\n", __func__);
-    mpdConnectionData *connection = [mpdConnectionData sharedManager];
-    self.host = [connection.host UTF8String];
-    self.port = [connection.port intValue];
+    if (self.conn == nil || mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
+    {
+        NSLog(@"%s\n", __func__);
+        mpdConnectionData *connection = [mpdConnectionData sharedManager];
+        self.host = [connection.host UTF8String];
+        self.port = [connection.port intValue];
+        
+        NSLog(@"HOST %s",self.host);
+        NSLog(@"PORT %d",self.port);
+        
+        self.conn = mpd_connection_new(self.host, self.port, 10000);
     
-    NSLog(@"HOST %s",self.host);
-    NSLog(@"PORT %d",self.port);
-    
-    self.conn = mpd_connection_new(self.host, self.port, 10000);
-    
+    }
    [self showSeekView];
     
     
@@ -273,6 +276,7 @@
     status = mpd_run_status(self.conn);
     if (status == NULL)
     {
+        [self checkConnnection];
         NSLog(@"Connection error status");
 //        mpd_connection_free(self.conn);
 //        [self initializeConnection];
