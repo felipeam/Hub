@@ -179,9 +179,9 @@
         
         self.conn = mpd_connection_new(self.host, self.port, 10000);
     
-    }
+   
    [self showSeekView];
-    
+     }
     
 }
 
@@ -236,14 +236,16 @@
 }
 //Called every 5 seconds to sync with database info.
 -(void)updateView
-{    
-    [self initializeConnection];
+{
+     //[self checkConnnection];
+    //[self initializeConnection];
     NSLog(@"%s\n", __func__);
     if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
     {
         NSLog(@"Connection error - %d", mpd_connection_get_error(self.conn));
-        mpd_connection_free(self.conn);
-        [self initializeConnection];
+         [self checkConnnection];
+        // mpd_connection_free(self.conn);
+        // [self initializeConnection];
         self.m_labelArtist.text = @"No Conectado";
         self.m_labelAlbum.text = @"";
         
@@ -262,7 +264,7 @@
     
     
 
-    
+     [self checkConnnection];
     
     self.isConnected = YES;
     //get song and status
@@ -1208,9 +1210,10 @@
 {
     NSInteger pos;
     NSLog(@"%s\n", __func__);
-    [self initializeConnection];
+    //[self initializeConnection];
     if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
     {
+        [self checkConnnection];
         NSLog(@"Connection error - %d", mpd_connection_get_error(self.conn));
 //        mpd_connection_free(self.conn);
 //        [self initializeConnection];
@@ -1227,7 +1230,8 @@
     if (status == NULL)
     {
         NSLog(@"Connection error status");
-//        mpd_connection_free(self.conn);
+         [self checkConnnection];
+        //        mpd_connection_free(self.conn);
 //        [self initializeConnection];
         return 0;
     }
@@ -1397,8 +1401,9 @@
     if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
     {
         NSLog(@"Connection error");
-        mpd_connection_free(self.conn);
-        [self initializeConnection];
+        [self checkConnnection];
+       /* mpd_connection_free(self.conn);
+        [self initializeConnection]; */
         return;
     }
     mpd_run_move(self.conn, fromIndexPath.row, toIndexPath.row);
@@ -1529,8 +1534,9 @@
     if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
     {
         NSLog(@"Connection error");
-        mpd_connection_free(self.conn);
-        [self initializeConnection];
+         [self checkConnnection];
+      /*  mpd_connection_free(self.conn);
+        [self initializeConnection]; */
         
     }
     else

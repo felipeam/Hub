@@ -307,11 +307,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555312.216064"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "241"
-         endingLineNumber = "241"
+         startingLineNumber = "242"
+         endingLineNumber = "242"
          landmarkName = "-updateView"
          landmarkType = "5">
       </FileBreakpoint>
@@ -320,11 +320,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555312.216064"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "463"
-         endingLineNumber = "463"
+         startingLineNumber = "465"
+         endingLineNumber = "465"
          landmarkName = "-getArtwork"
          landmarkType = "5">
       </FileBreakpoint>
@@ -333,11 +333,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555312.216064"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1170"
-         endingLineNumber = "1170"
+         startingLineNumber = "1172"
+         endingLineNumber = "1172"
          landmarkName = "-showSeekView"
          landmarkType = "5">
       </FileBreakpoint>
@@ -346,11 +346,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555974.291219"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1529"
-         endingLineNumber = "1529"
+         startingLineNumber = "1534"
+         endingLineNumber = "1534"
          landmarkName = "-cargarTabla"
          landmarkType = "5">
       </FileBreakpoint>
@@ -359,11 +359,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555312.216064"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1147"
-         endingLineNumber = "1147"
+         startingLineNumber = "1149"
+         endingLineNumber = "1149"
          landmarkName = "-initSeekView"
          landmarkType = "5">
       </FileBreakpoint>
@@ -372,11 +372,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555312.216064"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1156"
-         endingLineNumber = "1156"
+         startingLineNumber = "1158"
+         endingLineNumber = "1158"
          landmarkName = "-setCoverImage"
          landmarkType = "5">
       </FileBreakpoint>
@@ -385,11 +385,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555312.216064"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "567"
-         endingLineNumber = "567"
+         startingLineNumber = "569"
+         endingLineNumber = "569"
          landmarkName = "-playPausePush:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -411,11 +411,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555974.291219"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1245"
-         endingLineNumber = "1245"
+         startingLineNumber = "1249"
+         endingLineNumber = "1249"
          landmarkName = "-tableView:cellForRowAtIndexPath:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -424,11 +424,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555312.216064"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1209"
-         endingLineNumber = "1209"
+         startingLineNumber = "1211"
+         endingLineNumber = "1211"
          landmarkName = "-tableView:numberOfRowsInSection:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -476,11 +476,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555312.216064"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "555"
-         endingLineNumber = "555"
+         startingLineNumber = "557"
+         endingLineNumber = "557"
          landmarkName = "-artificialClock"
          landmarkType = "5">
       </FileBreakpoint>
@@ -489,11 +489,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555974.291219"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1570"
-         endingLineNumber = "1570"
+         startingLineNumber = "1576"
+         endingLineNumber = "1576"
          landmarkName = "-cargarTabla"
          landmarkType = "5">
       </FileBreakpoint>
@@ -502,11 +502,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555974.291219"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1629"
-         endingLineNumber = "1629"
+         startingLineNumber = "1635"
+         endingLineNumber = "1635"
          landmarkName = "-cargarTabla"
          landmarkType = "5">
       </FileBreakpoint>
@@ -515,11 +515,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555974.291219"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1334"
-         endingLineNumber = "1334"
+         startingLineNumber = "1338"
+         endingLineNumber = "1338"
          landmarkName = "-tableView:canEditRowAtIndexPath:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -528,11 +528,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555974.291219"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1371"
-         endingLineNumber = "1371"
+         startingLineNumber = "1375"
+         endingLineNumber = "1375"
          landmarkName = "-tableView:commitEditingStyle:forRowAtIndexPath:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -775,11 +775,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555974.291219"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1587"
-         endingLineNumber = "1587"
+         startingLineNumber = "1593"
+         endingLineNumber = "1593"
          landmarkName = "-cargarTabla"
          landmarkType = "5">
       </FileBreakpoint>
@@ -788,11 +788,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555974.291219"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1289"
-         endingLineNumber = "1289"
+         startingLineNumber = "1293"
+         endingLineNumber = "1293"
          landmarkName = "-tableView:cellForRowAtIndexPath:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -801,11 +801,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555974.291219"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1597"
-         endingLineNumber = "1597"
+         startingLineNumber = "1603"
+         endingLineNumber = "1603"
          landmarkName = "-cargarTabla"
          landmarkType = "5">
       </FileBreakpoint>
@@ -814,11 +814,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555974.291219"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1561"
-         endingLineNumber = "1561"
+         startingLineNumber = "1567"
+         endingLineNumber = "1567"
          landmarkName = "-cargarTabla"
          landmarkType = "5">
       </FileBreakpoint>
@@ -827,11 +827,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555312.216064"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "276"
-         endingLineNumber = "276"
+         startingLineNumber = "278"
+         endingLineNumber = "278"
          landmarkName = "-updateView"
          landmarkType = "5">
       </FileBreakpoint>
@@ -853,11 +853,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555974.291219"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1257"
-         endingLineNumber = "1257"
+         startingLineNumber = "1261"
+         endingLineNumber = "1261"
          landmarkName = "-tableView:cellForRowAtIndexPath:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -866,11 +866,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555974.291219"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1590"
-         endingLineNumber = "1590"
+         startingLineNumber = "1596"
+         endingLineNumber = "1596"
          landmarkName = "-cargarTabla"
          landmarkType = "5">
       </FileBreakpoint>
@@ -879,11 +879,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555312.216064"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "490"
-         endingLineNumber = "490"
+         startingLineNumber = "492"
+         endingLineNumber = "492"
          landmarkName = "-getArtwork"
          landmarkType = "5">
       </FileBreakpoint>
@@ -892,11 +892,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555974.291219"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1903"
-         endingLineNumber = "1903"
+         startingLineNumber = "1909"
+         endingLineNumber = "1909"
          landmarkName = "-ActionNowPlaying:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -905,11 +905,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555974.291219"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1340"
-         endingLineNumber = "1340"
+         startingLineNumber = "1344"
+         endingLineNumber = "1344"
          landmarkName = "-tableView:willDisplayCell:forRowAtIndexPath:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -918,11 +918,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555974.291219"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1345"
-         endingLineNumber = "1345"
+         startingLineNumber = "1349"
+         endingLineNumber = "1349"
          landmarkName = "-tableView:willDisplayCell:forRowAtIndexPath:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -931,11 +931,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555974.291219"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1352"
-         endingLineNumber = "1352"
+         startingLineNumber = "1356"
+         endingLineNumber = "1356"
          landmarkName = "-tableView:willDisplayCell:forRowAtIndexPath:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -944,11 +944,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555312.216064"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "334"
-         endingLineNumber = "334"
+         startingLineNumber = "336"
+         endingLineNumber = "336"
          landmarkName = "-updateView"
          landmarkType = "5">
       </FileBreakpoint>
@@ -957,11 +957,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555312.216064"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "642"
-         endingLineNumber = "642"
+         startingLineNumber = "644"
+         endingLineNumber = "644"
          landmarkName = "-NextSong:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -1421,7 +1421,7 @@
          landmarkType = "5">
       </FileBreakpoint>
       <FileBreakpoint
-         shouldBeEnabled = "Yes"
+         shouldBeEnabled = "No"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/TablePlayListViewController.m"
@@ -1434,7 +1434,7 @@
          landmarkType = "5">
       </FileBreakpoint>
       <FileBreakpoint
-         shouldBeEnabled = "Yes"
+         shouldBeEnabled = "No"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/TablePlayListViewController.m"
@@ -1451,11 +1451,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555312.216064"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "859"
-         endingLineNumber = "859"
+         startingLineNumber = "861"
+         endingLineNumber = "861"
          landmarkName = "-CellButtonClick:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -1464,11 +1464,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555974.291219"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1428"
-         endingLineNumber = "1428"
+         startingLineNumber = "1433"
+         endingLineNumber = "1433"
          landmarkName = "-tableView:didSelectRowAtIndexPath:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -1477,11 +1477,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555974.291219"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "2027"
-         endingLineNumber = "2027"
+         startingLineNumber = "2033"
+         endingLineNumber = "2033"
          landmarkName = "-textFieldShouldReturn:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -1555,11 +1555,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555312.216064"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "261"
-         endingLineNumber = "261"
+         startingLineNumber = "263"
+         endingLineNumber = "263"
          landmarkName = "-updateView"
          landmarkType = "5">
       </FileBreakpoint>
@@ -1568,11 +1568,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555312.216064"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "279"
-         endingLineNumber = "279"
+         startingLineNumber = "281"
+         endingLineNumber = "281"
          landmarkName = "-updateView"
          landmarkType = "5">
       </FileBreakpoint>
@@ -1594,11 +1594,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399422839.263499"
+         timestampString = "399555312.216064"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "545"
-         endingLineNumber = "545"
+         startingLineNumber = "547"
+         endingLineNumber = "547"
          landmarkName = "-artificialClock"
          landmarkType = "5">
       </FileBreakpoint>
