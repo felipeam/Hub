@@ -33,15 +33,6 @@
     [super viewDidLoad];
     self.responseData = [NSMutableData data];
     
-	// Do any additional setup after loading the view.
-    // --------------------
-    // - Conectamos -------
-    // --------------------
-   // [self connect];
-    //---------------------
-    
-        
-    
     [self startTimer];
     [m_activityView startAnimating];
     self.navigationController.navigationBarHidden = YES;
@@ -66,59 +57,11 @@
     reset_timer = nil;
 }
 - (void) onTimer {
-//    m_nRotate += 5;
-//    m_imgActivity.transform = CGAffineTransformMakeRotation(degreesToRadian(m_nRotate));
- //   [self performSegueWithIdentifier:@"searhing_push" sender:nil];
-    
-    // --------------------
-    // - Conectamos -------
-    // --------------------
-
     [self connect];
         
 }
 
 - (void) connect{
-   
-    
-  
-   // NSString *post = [NSString stringWithFormat:@"{\"owner\": {\"mac\": \"B8-27-EB-8D-41-C8\"}, \"sources\": {\"spotify\": {\"username\": \"\", \"password\": \"\", \"enabled\": false}, \"soundcloud\": {\"username\": \"\", \"auth_token\": \"\", \"password\": \"\", \"enabled\": false}}}"];
-    
-   /* NSString *jsonRequest = @"{\"owner\": {\"mac\": \"B8-27-EB-8D-41-C8\"}, \"sources\": {\"spotify\": {\"username\": \"labs@fon.com\", \"password\": \"fonfonfon\", \"enabled\": true}, \"soundcloud\": {\"username\": \"\", \"auth_token\": \"\", \"password\": \"\", \"enabled\": false}}}";
-    NSData *requestData = [NSData dataWithBytes:[jsonRequest UTF8String] length:[jsonRequest length]];
-    NSURL *url = [NSURL URLWithString:[[NSString alloc] initWithFormat:@"http://192.168.182.1:8080/ws/source/"]];
-    
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:60.0];
-  
-    [request setHTTPMethod:@"POST"];
-    [request setHTTPBody:requestData];
-    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-    [request setValue:[NSString stringWithFormat:@"%d",[requestData length]] forHTTPHeaderField:@"Content-Length"];
-    
-   // [NSURLConnection connectionWithRequest:request delegate:self];
-    NSURLConnection *connection= [[NSURLConnection alloc] initWithRequest:request
-                                                                 delegate:self];
-    
-    if (connection) {
-        NSLog(@"POST: %@", jsonRequest);
-    }
-    else {
-    NSLog(@"POST: %@", jsonRequest);
-    }
-    */
-    
-   // NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
-    /*
-    
-    NSURLResponse *response;
-    NSData *POSTReply = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:nil];
-    
-    if (POSTReply!=nil)
-    {*/
-     //   NSString *theReply = [[NSString alloc] initWithBytes:[POSTReply bytes] length:[POSTReply length] encoding: NSASCIIStringEncoding];
-     //   NSLog(@"Reply: %@", theReply);
-    
     
         NSString *urlString = [NSString stringWithFormat:@"http://192.168.182.1:8080/ws/status/"];
     
@@ -175,18 +118,11 @@
                     
                     if([[[adsources valueForKey:@"spotify"] valueForKey:@"enabled"] boolValue] == false )
                     {
-                      //  if([[[adsources valueForKey:@"soundcloud"] valueForKey:@"enabled"] boolValue]  == false )
-                      //  {
-                            UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
-                            UIViewController *vc = [storyboard instantiateViewControllerWithIdentifier:@"LoginServices"];
-                            [self.navigationController pushViewController:vc animated:YES];
-                            
-                      //  }
-                      //  else
-                      //  {
-                      //      appDelegate.SoundCloudUser = [[adsources valueForKey:@"soundcloud"] valueForKey:@"username"];
-                      //      appDelegate.SoundCloudPass = [[adsources valueForKey:@"soundcloud"] valueForKey:@"password"];
-                      //  }
+
+                        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
+                        UIViewController *vc = [storyboard instantiateViewControllerWithIdentifier:@"LoginServices"];
+                        [self.navigationController pushViewController:vc animated:YES];
+
                     }
                     else
                     {
@@ -229,11 +165,6 @@
             [errorAlert show];
         }
         NSLog(@"%@",json);
-  /*  }
-    else
-    {
-        printf("POST Fallido");
-    }*/
 }
 
 
@@ -299,7 +230,6 @@
         [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
         [request setValue:[NSString stringWithFormat:@"%d",[requestData length]] forHTTPHeaderField:@"Content-Length"];
         
-        // [NSURLConnection connectionWithRequest:request delegate:self];
         NSURLConnection *connection= [[NSURLConnection alloc] initWithRequest:request
                                                                      delegate:self];
         appDelegate.FBuserID = @"";
@@ -322,17 +252,8 @@
             [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
             [request setValue:[NSString stringWithFormat:@"%d",[requestData length]] forHTTPHeaderField:@"Content-Length"];
             
-            // [NSURLConnection connectionWithRequest:request delegate:self];
             NSURLConnection *connection= [[NSURLConnection alloc] initWithRequest:request
                                                                          delegate:self];
-          /*
-            if (connection) {
-                NSLog(@"POST: %@", jsonRequest);
-            }
-            else {
-                NSLog(@"POST: %@", jsonRequest);
-            }
-           */
             reset_timer = [NSTimer scheduledTimerWithTimeInterval:20.0 target:self selector:@selector(onResetTimer) userInfo:nil repeats:NO];
         }
         else{
@@ -348,7 +269,6 @@
             [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
             [request setValue:[NSString stringWithFormat:@"%d",[requestData length]] forHTTPHeaderField:@"Content-Length"];
             
-            // [NSURLConnection connectionWithRequest:request delegate:self];
             NSURLConnection *connection= [[NSURLConnection alloc] initWithRequest:request
                                                                          delegate:self];
             
@@ -371,7 +291,6 @@
         [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
         [request setValue:[NSString stringWithFormat:@"%d",[requestData length]] forHTTPHeaderField:@"Content-Length"];
         
-        // [NSURLConnection connectionWithRequest:request delegate:self];
         NSURLConnection *connection= [[NSURLConnection alloc] initWithRequest:request
                                                                      delegate:self];
         

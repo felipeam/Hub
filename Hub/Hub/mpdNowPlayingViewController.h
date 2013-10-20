@@ -11,6 +11,7 @@
 #import <mpd/status.h>
 #import "mpdConnectionData.h"
 #import <dispatch/dispatch.h>
+#import "GCDAsyncSocket.h"
 
 @interface mpdNowPlayingViewController : UIViewController<UITableViewDataSource, UITableViewDelegate, UIActionSheetDelegate, UIActionSheetDelegate>
 {
@@ -20,6 +21,9 @@
     NSMutableArray *SongTime;
     NSMutableArray *SongStatus;
     dispatch_queue_t backgroundQueue;
+    enum mpd_idle statusidle;
+    GCDAsyncSocket *asyncSocket;
+    NSString *valoridle;
 }
 
 
@@ -140,6 +144,7 @@
 - (IBAction)ActionBuscar:(id)sender;
 - (IBAction)CerrarBusqueda:(id)sender;
 
+- (IBAction)LibraryMenuClick:(id)sender;
 
 
 - (IBAction)SwipeLeft:(id)sender;

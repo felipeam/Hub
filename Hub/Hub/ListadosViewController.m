@@ -103,13 +103,6 @@
         self.albumController = [[albumList alloc] init];
         
         self.artistController = [[artistList alloc] init];
-        //  self.fileController = [[browseList alloc] init];
-        
-        //    self.songartistController = [[songList alloc] init];
-        
-        //[TableAlbumViewController initialize];
-        // TableAlbumViewController * delegateClass = [[TableAlbumViewController alloc] init];
-        
         
         [_tableAlbum setDataSource:AlbumTableController];
         [_tableAlbum setDelegate:AlbumTableController];
@@ -120,9 +113,6 @@
         [_tableArtist setDataSource:ArtistTableController];
         [_tableArtist setDelegate:ArtistTableController];
         
-        //  [_tableFiles setDataSource:FilelistTableController];
-        //  [_tableFiles setDelegate:FilelistTableController];
-        
         [_tableCanciones setDataSource:SongArtistTableController];
         [_tableCanciones setDelegate:SongArtistTableController];
         
@@ -130,14 +120,12 @@
         AlbumTableController.view = AlbumTableController.tableView;
         PlaylistTableController.view = PlaylistTableController.tableView;
         ArtistTableController.view = ArtistTableController.tableView;
-        //  FilelistTableController.view = FilelistTableController.tableView;
         SongArtistTableController.view = SongArtistTableController.tableView;
         
         
         AlbumTableController.tableAlbumList = _tableAlbum;
         PlaylistTableController.tablePlaylistList = tablePlaylist;
         ArtistTableController.tableArtistList = _tableArtist;
-        //  FilelistTableController.tableFileList = _tableFiles;
         
         SongArtistTableController.TablaListado = _tableCanciones;
         
@@ -151,6 +139,12 @@
     
     
 	// Do any additional setup after loading the view.
+}
+
+- (void) checkConnnection {
+    if (self.conn == nil || mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS) {
+        [self initializeConnection];
+    }
 }
 
 -(void)asyncupdate
@@ -201,13 +195,7 @@
 {
     
         static NSString *CellIdentifier = @"CeldaIdentifier";
-        UITableViewCell *cell;// = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
-        //    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-        //	if (cell == nil)
-        //	{
-        //		cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
-        //		cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-        //	}
+        UITableViewCell *cell;
         
         // Configure the cell...
         if(tableView == self.searchDisplayController.searchResultsTableView) {
@@ -221,7 +209,6 @@
             
             labelTitle.text = [self.searchController playlistsAtIndex:indexPath.row];
             
-            //  [[cell textLabel] setText:[self.searchController playlistsAtIndex:indexPath.row]];
         }
         else {
             cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
@@ -229,19 +216,17 @@
             UILabel* labelTitle = (UILabel*)[cell.contentView viewWithTag:2];
             
             switch (posScreen) {
-                case 0: labelTitle.text = [self.albumController albumAtIndex:indexPath.row]; //[self.searchController playlistsAtIndex:indexPath.row];
+                case 0: labelTitle.text = [self.albumController albumAtIndex:indexPath.row];
                     break;
                 case 1: labelTitle.text = [self.albumController albumAtIndex:indexPath.row];
                     break;
                 case 2: labelTitle.text = [self.searchController playlistsAtIndex:indexPath.row];
-                    NSLog(@"VALOR CELDA: %@",[self.searchController playlistsAtIndex:indexPath.row]);
+                    NSLog(@"CELL VALUE: %@",[self.searchController playlistsAtIndex:indexPath.row]);
                     break;
                 case 3: labelTitle.text = [self.searchController playlistsAtIndex:indexPath.row];
                     break;
                 default: labelTitle.text = [self.searchController playlistsAtIndex:indexPath.row];
             }
-            
-            //   [[cell textLabel] setText:[self.searchController playlistsAtIndex:indexPath.row]];
         }
         
         
@@ -285,10 +270,6 @@
                 return;
             }
             
-          /*  mpd_command_list_begin(self.conn, true);
-            
-            mpd_search_add_db_songs(self.conn, TRUE); */
-            
             mpd_command_list_begin(self.conn, true);
             mpd_search_queue_songs(self.conn, TRUE);
             
@@ -300,7 +281,6 @@
             
 
         }
-          //  [_dataController addAlbumAtSectionAndIndexToQueue:indexPath.section row:indexPath.row];
 	}
 }
 
@@ -329,7 +309,6 @@
 -(void)MostrarListadoCanciones
 {
     
-    
     [UIView animateWithDuration:.3f animations:^{
         CGRect theFrame = VistaCanciones.frame;
         theFrame.origin.x = 0.f;
@@ -348,9 +327,7 @@
 }
 
 -(void)MostrarListadoCancionesAlbum
-{
-    
-    
+{    
     [UIView animateWithDuration:.3f animations:^{
         CGRect theFrame = VistaCanciones.frame;
         theFrame.origin.x = 0.f;
@@ -895,21 +872,7 @@
 //Called every 5 seconds to sync with database info.
 -(void)updateView
 {
-    [self initializeConnection];
-    NSLog(@"%s\n", __func__);
-    if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
-    {
-        NSLog(@"Connection error - %d", mpd_connection_get_error(self.conn));
-        mpd_connection_free(self.conn);
-        [self initializeConnection];        
-        
-        _textTituloCancion.text = @"No Conectado";
-        _textAlbumCancion.text = @"";
-        
-        
-        
-        return;
-    }
+    [self checkConnnection];
     
     NSLog(@"ERROR CONNECTION: %u",mpd_connection_get_error(self.conn));
     
@@ -917,11 +880,7 @@
     //get song and status
     struct mpd_status * status = nil;
     struct mpd_song *song;
-    //    mpd_command_list_begin(self.conn, true);
-    //    mpd_send_status(self.conn);
-    //    mpd_send_current_song(self.conn);
-    //    mpd_command_list_end(self.conn);
-    //    status = mpd_recv_status(self.conn);
+
     status = mpd_run_status(self.conn);
     if (status == NULL)
     {
@@ -963,17 +922,10 @@
                 [self.m_btnPlayMini setImage:[UIImage imageNamed:@"pause.png"] forState:UIControlStateNormal]; */
             }
             
-            if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
-            {
-                NSLog(@"Connection error free");
-                mpd_connection_free(self.conn);
-                [self initializeConnection];
-                return;
-            }
-            //            mpd_response_next(self.conn);
-            //            song = mpd_recv_song(self.conn);
+            [self checkConnnection];
+
             song = mpd_run_current_song(self.conn);
-            // NSLog(@"uri = %s", mpd_song_get_uri(song));
+
             //These are all wrapped in try catch statements because if the tag is empty, the
             //function doesn't handle well
             if(song!=NULL)
@@ -1014,11 +966,7 @@
                     }
                     
                     _textTituloCancion.text = [[NSString alloc] initWithUTF8String:szText];
-                    
-                    //                NSMutableString *trackString=[[NSMutableString alloc] initWithUTF8String:mpd_song_get_tag(song, MPD_TAG_TRACK, 0)];
-                    //                [trackString appendString:@" of "];
-                    //                [trackString appendString:[NSString stringWithFormat:@"%d",[self maxTrackNum:self.artistText.text album:self.albumText.text]]];
-                    //                self.trackText.text = trackString;
+                
                 }
                 @catch (NSException *e) {
                    _textTituloCancion.text = @"";
@@ -1034,28 +982,18 @@
                 });
             });
             
-            //            mpd_song_free(song);
+
         }
         else
         {
-            //            self.songTitle.text = @"Stopped";
-            //            self.artistText.text = @"";
-            //            self.albumText.text = @"";
-            //            self.trackText.text = @"";
+
             _textTituloCancion.text = @"Stopped";
             _textAlbumCancion.text = @"";
         
         }
-        //        mpd_status_free(status);
-   
-        
-        
-        
-        
         
     }
-    //    mpd_connection_free(self.conn);
-    //    [self.m_tableView reloadData];
+
 }
 
 //uses last.fm web api to fetch the picture.  UpdateView then loads this info into the uiimageview

@@ -231,6 +231,8 @@
 		79E9972C17B2982700131814 /* singgoogle.png in Resources */ = {isa = PBXBuildFile; fileRef = 79E9972A17B2982700131814 /* singgoogle.png */; };
 		79E9972E17B29B2F00131814 /* buttonvolverrect.png in Resources */ = {isa = PBXBuildFile; fileRef = 79E9972D17B29B2F00131814 /* buttonvolverrect.png */; };
 		79E9973017B2C3DD00131814 /* btntopatras.png in Resources */ = {isa = PBXBuildFile; fileRef = 79E9972F17B2C3DD00131814 /* btntopatras.png */; };
+		79FB336918052F8E0030EEE8 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 79FB336818052F8E0030EEE8 /* CFNetwork.framework */; };
+		79FB336D18052FC50030EEE8 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 79FB336C18052FC50030EEE8 /* GCDAsyncSocket.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -495,6 +497,9 @@
 		79E9972A17B2982700131814 /* singgoogle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = singgoogle.png; sourceTree = "<group>"; };
 		79E9972D17B29B2F00131814 /* buttonvolverrect.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = buttonvolverrect.png; sourceTree = "<group>"; };
 		79E9972F17B2C3DD00131814 /* btntopatras.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = btntopatras.png; sourceTree = "<group>"; };
+		79FB336818052F8E0030EEE8 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		79FB336B18052FC50030EEE8 /* GCDAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDAsyncSocket.h; sourceTree = "<group>"; };
+		79FB336C18052FC50030EEE8 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncSocket.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -502,6 +507,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				79FB336918052F8E0030EEE8 /* CFNetwork.framework in Frameworks */,
 				79C3D57A179DD8FE0078EA93 /* libMpdDispatch.a in Frameworks */,
 				79138CAF179C0A1F0063F360 /* libsqlite3.dylib in Frameworks */,
 				79138CAD179C08C90063F360 /* Accounts.framework in Frameworks */,
@@ -558,6 +564,7 @@
 		79138C43179BEDE50063F360 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				79FB336818052F8E0030EEE8 /* CFNetwork.framework */,
 				79C3D579179DD8FD0078EA93 /* libMpdDispatch.a */,
 				79138CAE179C0A1F0063F360 /* libsqlite3.dylib */,
 				79138CAC179C08C90063F360 /* Accounts.framework */,
@@ -577,6 +584,7 @@
 		79138C4A179BEDE50063F360 /* Hub */ = {
 			isa = PBXGroup;
 			children = (
+				79FB336A18052FA80030EEE8 /* connectionidle */,
 				79795ADF179DF7A100C66C2A /* PlayerInfo.h */,
 				79795AE0179DF7A100C66C2A /* PlayerInfo.m */,
 				79C3D58A179DEEB00078EA93 /* GameUnit.h */,
@@ -857,6 +865,15 @@
 				79C3D527179DA9BB0078EA93 /* spotify_icon_gray.png */,
 			);
 			name = Services;
+			sourceTree = "<group>";
+		};
+		79FB336A18052FA80030EEE8 /* connectionidle */ = {
+			isa = PBXGroup;
+			children = (
+				79FB336B18052FC50030EEE8 /* GCDAsyncSocket.h */,
+				79FB336C18052FC50030EEE8 /* GCDAsyncSocket.m */,
+			);
+			name = connectionidle;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1153,6 +1170,7 @@
 				79138C80179BF0210063F360 /* mpdSearchingHubViewController.m in Sources */,
 				79138C8B179BF5870063F360 /* Reachability.m in Sources */,
 				79138CB2179C3C4C0063F360 /* OwnerLoginViewController.m in Sources */,
+				79FB336D18052FC50030EEE8 /* GCDAsyncSocket.m in Sources */,
 				79C3D513179DA75E0078EA93 /* ServicesViewController.m in Sources */,
 				79C3D56E179DC4200078EA93 /* SpotifyServiceViewController.m in Sources */,
 				79C3D571179DCB190078EA93 /* SoundcloudViewController.m in Sources */,

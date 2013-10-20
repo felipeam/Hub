@@ -38,7 +38,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [self initializeConnection];
+    [self checkConnnection];
     self.searchController = [[playlistsList alloc] init];
 	// Do any additional setup after loading the view.
 }
@@ -48,6 +48,39 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+#pragma mark - connection function
+- (void) checkConnnection {
+    if (self.conn == nil || mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS) {
+        [self initializeConnection];
+    }
+}
+
+- (void) releaseConnection {
+    mpd_connection_free(self.conn);
+    self.conn = nil;
+}
+//Called to setup self.conn. Used by all database interactions.
+//It is best not to reuse the connection for multiple interactions, so setup and
+//released each time.
+-(void)initializeConnection
+{
+    if (self.conn == nil || mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
+    {
+        NSLog(@"%s\n", __func__);
+        mpdConnectionData *connection = [mpdConnectionData sharedManager];
+        self.host = [connection.host UTF8String];
+        self.port = [connection.port intValue];
+        
+        NSLog(@"HOST %s",self.host);
+        NSLog(@"PORT %d",self.port);
+        
+        self.conn = mpd_connection_new(self.host, self.port, 20000);
+
+    }
+    
+}
+
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
@@ -179,7 +212,8 @@
         {
             NSLog(@"Connection error");
           //  mpd_connection_free(self.conn);
-            [self initializeConnection];
+            [self checkConnnection];
+            //  [self initializeConnection];
             return;
         }
         [self initializePlaylistDataList: [self.searchController playlistsAtIndex:_PosClick]];
@@ -188,6 +222,8 @@
         //    }
     }
     else if (buttonIndex == 1) {
+        [self checkConnnection];
+        /*
         [self initializeConnection];
         if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
         {
@@ -195,7 +231,7 @@
           //  mpd_connection_free(self.conn);
             [self initializeConnection];
             return;
-        }
+        } */
         mpd_send_clear(self.conn);
         [self initializePlaylistDataList: [self.searchController playlistsAtIndex:_PosClick]];
         //   for (int songval=0; songval<[_songs count] ; songval++) {
@@ -211,7 +247,8 @@
         {
             NSLog(@"Connection error");
          //   mpd_connection_free(self.conn);
-            [self initializeConnection];
+            [self checkConnnection];
+       //     [self initializeConnection];
             return;
         }
         [self initializePlaylistDataList: [self.searchController playlistsAtIndex:_PosClick]];
@@ -226,7 +263,8 @@
         {
             NSLog(@"Connection error");
          //   mpd_connection_free(self.conn);
-            [self initializeConnection];
+            [self checkConnnection];
+            //            [self initializeConnection];
             return;
         }
         [self initializePlaylistDataList: [self.searchController playlistsAtIndex:_PosClick]];
@@ -237,24 +275,6 @@
 }
 
 
-
--(void)initializeConnection
-{
-    NSLog(@"%s\n", __func__);
-    mpdConnectionData *connection = [mpdConnectionData sharedManager];
-    self.host = [connection.host UTF8String];
-    self.port = [connection.port intValue];
-    
-    
-    
-    NSLog(@"HOST %s",self.host);
-    NSLog(@"PORT %d",self.port);
-    
-    self.conn = mpd_connection_new(self.host, self.port, 10000);
-    
-    
-}
-
 -(void)initializePlaylistDataList:(NSString *)album
 {
     NSMutableArray *list = [[NSMutableArray alloc] init];
@@ -262,8 +282,8 @@
     
     NSMutableArray *listalbums = [[NSMutableArray alloc] init];
     self.albums = listalbums;
-    
-      [self initializeConnection];
+    [self checkConnnection];
+  /*    [self initializeConnection];
      if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
      {
          NSLog(@"Connection error");
@@ -271,17 +291,20 @@
          [self initializeConnection];
          return;
 
-     }
+     }*/
      
     const char *cAlbum = [album UTF8String];
     mpd_command_list_begin(self.conn, true);
     mpd_search_db_songs(self.conn, true);
  //   mpd_search_add_any_tag_constraint(self.conn, MPD_OPERATOR_DEFAULT, cAlbum);
-    mpd_send_list_playlist(self.conn, cAlbum);
-    mpd_search_commit(self.conn);
+  //  mpd_send_list_playlist(self.conn, cAlbum);
+  //  mpd_search_commit(self.conn);
+    mpd_send_load(self.conn,cAlbum);
     mpd_command_list_end(self.conn);
     
-    struct mpd_song *song;
+   
+    
+  /*  struct mpd_song *song;
     while((song=mpd_recv_song(self.conn))!=NULL)
     {
         char* szText = (char*)mpd_song_get_tag(song, MPD_TAG_TITLE, 0);
@@ -297,9 +320,9 @@
         }
         [self.albums addObject:[[NSString alloc] initWithUTF8String:AlbumText]];
     }
+    */
     
-    
-    struct mpd_playlist *playlist;
+  /*  struct mpd_playlist *playlist;
     while((playlist=mpd_recv_playlist(self.conn))!=NULL)
     {
        /* char* szText = (char*)mpd_song_get_tag(song, MPD_TAG_TITLE, 0);
@@ -314,13 +337,15 @@
             AlbumText = "Unkown album";
         }
         [self.albums addObject:[[NSString alloc] initWithUTF8String:AlbumText]]; */
-    }
+/*    }
     
-    mpd_connection_free(self.conn);    
+    mpd_connection_free(self.conn);    */
 }
 
 -(void)addPlaylistSong: (NSUInteger)row
 {
+    
+   
    /* [self initializeConnection];
     if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
     {
@@ -331,18 +356,21 @@
     }
     */
     
-    
+    /*
     for (int x=0; x<[_songs count]; x++) {
-        [self initializeConnection];
+         [self checkConnnection];
+       /* [self initializeConnection];
         if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
         {
             NSLog(@"Connection error");
             mpd_connection_free(self.conn);
             [self initializeConnection];
             return;
-        }
-        mpd_command_list_begin(self.conn, true);
+        } */
+    /*    mpd_command_list_begin(self.conn, true);
         mpd_search_add_db_songs(self.conn, TRUE);
+        
+        
         mpd_search_add_tag_constraint(self.conn, MPD_OPERATOR_DEFAULT, MPD_TAG_TITLE, [[_songs objectAtIndex:x] UTF8String]);
        // mpd_search_add_tag_constraint(self.conn, MPD_OPERATOR_DEFAULT, MPD_TAG_ALBUM, [[_albums objectAtIndex:x] UTF8String]);
         //  mpd_run_playlist_add(self.conn,[[self.searchController playlistsAtIndex:row] UTF8String],(char*)@"");
@@ -357,7 +385,7 @@
     mpd_search_commit(self.conn);
     mpd_command_list_end(self.conn);
     mpd_connection_free(self.conn); */
-   // mpd_connection_free(self.conn);
+   // mpd_connection_free(self.conn);*/
 }
 
 

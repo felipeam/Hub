@@ -8,12 +8,10 @@
 
 #import "mpdNowPlayingViewController.h"
 #import <mpd/client.h>
-//#import "SettingsViewController.h"
-//#import "PlayersViewController.h"
 #import "PlayerInfo.h"
 #import "GameUnit.h"
 #import "AppDelegate.h"
-//#import "AFUIImageReflection.h"
+#import "GCDAsyncSocket.h"
 @interface mpdNowPlayingViewController ()
 
 @end
@@ -35,6 +33,14 @@
 @synthesize buttonNowPlaying;
 @synthesize TableSongs;
 
+#define WELCOME_MSG  0
+#define ECHO_MSG     1
+#define WARNING_MSG  2
+
+#define READ_TIMEOUT 15.0
+#define READ_TIMEOUT_EXTENSION 10.0
+
+#define FORMAT(format, ...) [NSString stringWithFormat:(format), ##__VA_ARGS__]
 
 - (void)viewDidLoad
 {
@@ -43,7 +49,7 @@
     if (backgroundQueue==NULL) {
         backgroundQueue = dispatch_queue_create("FON.mpdNowPlayingViewController", NULL);
     }
-    [self initializeConnection];
+    [self checkConnnection];
     dispatch_async(backgroundQueue, ^(void) {
         [self cargarTabla];
     });
@@ -57,12 +63,7 @@
         globalConnection.port = [[NSNumber alloc] initWithInt:[player.m_strMPDPort intValue]];
     }
     posScreen = 1;
-      /*  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self cargarTabla];
-        });
-    });
-*/
+
     self.m_labelArtist = [[UILabel alloc] initWithFrame:CGRectMake(90, 4, 180, 20)];
     self.m_labelArtist.font = [UIFont systemFontOfSize:14];
     self.m_labelArtist.textAlignment = NSTextAlignmentCenter;
@@ -77,7 +78,6 @@
     [self.navigationController.navigationBar addSubview:self.m_labelAlbum];
     
     self.m_nVolume = 50;
-//    [self updateView];
     self.artwork = [UIImage alloc];
     CGRect frame = self.m_segmentPlay.frame;
     frame.size.height = 44;
@@ -90,7 +90,14 @@
     self.TableSongs.editing = YES;
     self.TableSongs.allowsSelectionDuringEditing = YES;
     
-       
+    
+    dispatch_async(backgroundQueue, ^(void) {
+        statusidle = mpd_recv_idle(self.conn, FALSE);
+    });
+    
+    
+    [self hostConnect];
+    
 }
 
 
@@ -100,8 +107,6 @@
 }
 -(void)viewDidAppear:(BOOL)animated
 {
-    //[self checkConnnection];
- //   [self cargarTabla];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -109,16 +114,10 @@
         });
     });
     
-   // [self updateView];
     [self.m_tableView reloadData];
     [self changeEditSegImage];
-    //Start the timers
     self.updateTimer = [NSTimer scheduledTimerWithTimeInterval: 5.0 target: self selector:@selector(asyncupdate) userInfo: nil repeats:YES];
-  //  self.updateTimerTabla = [NSTimer scheduledTimerWithTimeInterval: 5.0 target: self selector:@selector(asyncupdateTabla) userInfo: nil repeats:YES];
     self.clockTimer = [NSTimer scheduledTimerWithTimeInterval: 1.0 target: self selector:@selector(artificialClock) userInfo: nil repeats:YES];
- //   self.connectTimer = [NSTimer scheduledTimerWithTimeInterval: 1.0 target: self selector:@selector(checkConnnection) userInfo: nil repeats:YES];
-   // self.updateTable = [NSTimer scheduledTimerWithTimeInterval: 3.0 target: self selector:@selector(cargarTabla) userInfo: nil repeats:YES];
-    
     [self changeVolumeImage:self.m_nVolume];
 }
 
@@ -169,6 +168,7 @@
 {
     if (self.conn == nil || mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
     {
+      //  mpd_connection_free(self.conn);
         NSLog(@"%s\n", __func__);
         mpdConnectionData *connection = [mpdConnectionData sharedManager];
         self.host = [connection.host UTF8String];
@@ -226,62 +226,136 @@
     }
 
 
-    /*dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self cargarTabla];
-        });
-    }); */
-
-
 }
+// TELNET IDLE CONNECTION --------------
+
+- (void)hostConnect {
+    NSLog(@"%s",__FUNCTION__);
+    asyncSocket = [[GCDAsyncSocket alloc] initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
+    NSError *err = nil;
+    if (![asyncSocket connectToHost:@"192.168.182.1" onPort:6600 error:&err]) {
+        NSLog(@"I goofed: %@", err);
+    }
+    [asyncSocket readDataWithTimeout:5 tag:1];
+}
+
+- (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port {
+    NSLog(@"Connected!");
+}
+
+- (void)socket:(GCDAsyncSocket *)sock didWriteDataWithTag:(long)tag
+{
+	// This method is executed on the socketQueue (not the main thread)
+	
+	if (tag == ECHO_MSG)
+	{
+		[asyncSocket readDataToData:[GCDAsyncSocket CRLFData] withTimeout:READ_TIMEOUT tag:0];
+	}
+}
+
+- (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
+{
+	// This method is executed on the socketQueue (not the main thread)
+	
+	dispatch_async(dispatch_get_main_queue(), ^{
+		@autoreleasepool {
+            
+			NSData *strData = [data subdataWithRange:NSMakeRange(0, [data length] - 2)];
+			NSString *msg = [[NSString alloc] initWithData:strData encoding:NSUTF8StringEncoding];
+			if (msg)
+			{
+				valoridle=msg;
+			}
+			else
+			{
+				valoridle=@"Error converting received data into UTF-8 String";
+			}
+            
+		}
+	});
+	
+	// Echo message back to client
+	[sock writeData:data withTimeout:-1 tag:ECHO_MSG];
+}
+
+
+- (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err
+{
+	NSLog(@"socketDidDisconnect");
+    [self hostConnect];
+}
+
+
+//--------------------------------------
+
+
 //Called every 5 seconds to sync with database info.
 -(void)updateView
 {
-     //[self checkConnnection];
-    //[self initializeConnection];
-    NSLog(@"%s\n", __func__);
-    if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
-    {
-        NSLog(@"Connection error - %d", mpd_connection_get_error(self.conn));
-         [self checkConnnection];
-        // mpd_connection_free(self.conn);
-        // [self initializeConnection];
-        self.m_labelArtist.text = @"No Conectado";
-        self.m_labelAlbum.text = @"";
-        
-        LabelNameSong.text = @"No Conectado";
-        LabelAlbumSong.text = @"";
-        LabelGroupSong.text = @"";
-        
-        LabelNameSongMini.text = @"No Conectado";
-        LabelAlbumSongMini.text = @"";
-        
-        self.isConnected = NO;
-        return;
-    }
+    NSLog(@"VALORIDLE: %@",valoridle);
+    NSString *requestStr = @"idle\r";
+    NSData *requestData = [requestStr dataUsingEncoding:NSUTF8StringEncoding];
+    [asyncSocket writeData:requestData withTimeout:1.0 tag:0];
+    NSLog(@"IDLE: %u",statusidle);
+   // [self checkConnnection];
     
-    NSLog(@"ERROR CONNECTION: %u",mpd_connection_get_error(self.conn));
+    if (statusidle!=0) {
+        NSLog(@"%s\n", __func__);
+   
+        if(statusidle == MPD_IDLE_DATABASE)
+        {
+            NSLog(@"DATABASE");
+        }
+        else if(statusidle == MPD_IDLE_STORED_PLAYLIST)
+        {
+            NSLog(@"MPD_IDLE_STORED_PLAYLIST");
+        }
+        else if(statusidle == MPD_IDLE_QUEUE)
+        {
+            NSLog(@"MPD_IDLE_QUEUE");
+        }
+        else if(statusidle == MPD_IDLE_PLAYLIST)
+        {
+            NSLog(@"MPD_IDLE_PLAYLIST");
+        }
+        else if(statusidle == MPD_IDLE_PLAYER)
+        {
+            NSLog(@"MPD_IDLE_PLAYER");
+        }
+        else if(statusidle == MPD_IDLE_OUTPUT)
+        {
+            NSLog(@"MPD_IDLE_OUTPUT");
+        }
+        else if(statusidle == MPD_IDLE_MIXER)
+        {
+            NSLog(@"MPD_IDLE_MIXER");
+        }
+        else if(statusidle == MPD_IDLE_UPDATE)
+        {
+            NSLog(@"MPD_IDLE_UPDATE");
+        }
+
+        
+        
+     [self checkConnnection];
+     statusidle = mpd_recv_idle(self.conn, FALSE);
     
+     
     
 
-     [self checkConnnection];
+    
+    
+    [self checkConnnection];
     
     self.isConnected = YES;
     //get song and status
     struct mpd_status * status = nil;
     struct mpd_song *song;
-//    mpd_command_list_begin(self.conn, true);
-//    mpd_send_status(self.conn);
-//    mpd_send_current_song(self.conn);
-//    mpd_command_list_end(self.conn);
-//    status = mpd_recv_status(self.conn);
     status = mpd_run_status(self.conn);
     if (status == NULL)
     {
-        [self checkConnnection];
+     //   [self checkConnnection];
         NSLog(@"Connection error status");
-//        mpd_connection_free(self.conn);
-//        [self initializeConnection];
         self.m_labelArtist.text = @"Stopped";
         self.m_labelAlbum.text = @"";
         
@@ -321,16 +395,11 @@
             
             seconds = self.totalTime % 60;
             minutes = (self.totalTime - seconds) / 60;
-            
-            
+          
             LabelTotalTime.text = [NSString stringWithFormat:@"%d:%.2d", minutes, seconds];//[@(mpd_status_get_total_time(status)) stringValue];
-            
-            //        self.curPos.text = [NSString stringWithFormat:@"%u:%02u", self.currentTime/60,self.currentTime%60];
+
             self.totalTime = mpd_status_get_total_time(status);
-            //        self.totTime.text = [NSString stringWithFormat:@"%u:%02u",self.totalTime/60,self.totalTime%60 ];
-            //        self.progressSlider.maximumValue = self.totalTime;
-            //        self.progressSlider.value = self.currentTime;
-            
+           
             enum mpd_state playerState;
             //If playing or paused, load all song info.  Else clear all fields.
             if((playerState= mpd_status_get_state(status)) == MPD_STATE_PLAY || mpd_status_get_state(status) == MPD_STATE_PAUSE)
@@ -347,9 +416,6 @@
                                    }
                 else
                 {
-                    //                self.play.image = [UIImage imageNamed:@"pause.png"];
-                    //                self.m_labelArtist.text = @"Not connected to MPD Server";
-                    //                self.m_labelAlbum.text = @"";
                     self.playing = true;
                     [BotonPlayPause setImage:[UIImage imageNamed:@"pause.png"] forState:UIControlStateNormal];
                     [self.m_btnPlayMini setImage:[UIImage imageNamed:@"pause.png"] forState:UIControlStateNormal];
@@ -362,8 +428,6 @@
                     [self initializeConnection];
                     return;
                 }
-                //            mpd_response_next(self.conn);
-                //            song = mpd_recv_song(self.conn);
                 song = mpd_run_current_song(self.conn);
                 // NSLog(@"uri = %s", mpd_song_get_uri(song));
                 //These are all wrapped in try catch statements because if the tag is empty, the
@@ -411,16 +475,10 @@
                         
                         LabelNameSong.text = [[NSString alloc] initWithUTF8String:szText];
                         LabelNameSongMini.text = [[NSString alloc] initWithUTF8String:szText];
-                        
-                        //                NSMutableString *trackString=[[NSMutableString alloc] initWithUTF8String:mpd_song_get_tag(song, MPD_TAG_TRACK, 0)];
-                        //                [trackString appendString:@" of "];
-                        //                [trackString appendString:[NSString stringWithFormat:@"%d",[self maxTrackNum:self.artistText.text album:self.albumText.text]]];
-                        //                self.trackText.text = trackString;
                     }
                     @catch (NSException *e) {
                         LabelNameSong.text = @"";
                         LabelNameSongMini.text = @"";
-                        //                self.trackText.text = @"";
                     }
                 }
                 //kgh
@@ -432,19 +490,13 @@
                     });
                 });
                 
-                //            mpd_song_free(song);
             }
             else
             {
-                //            self.songTitle.text = @"Stopped";
-                //            self.artistText.text = @"";
-                //            self.albumText.text = @"";
-                //            self.trackText.text = @"";
                 self.m_labelArtist.text = @"Stopped";
                 self.m_labelAlbum.text = @"";
                 self.playing=false;
             }
-            //        mpd_status_free(status);
             UIImage* img;
             if (self.playing)
                 img = [UIImage imageNamed:@"pause-small.png"];
@@ -455,8 +507,7 @@
        
         }
     }
-//    mpd_connection_free(self.conn);
-//    [self.m_tableView reloadData];
+    }
 }
 
 //uses last.fm web api to fetch the picture.  UpdateView then loads this info into the uiimageview
@@ -500,14 +551,8 @@
     //NSMutableArray *list = [[NSMutableArray alloc] init];
     NSInteger max=0;
     
-//    [self initializeConnection];
-    if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
-    {
-        NSLog(@"Connection error");
-        mpd_connection_free(self.conn);
-        [self initializeConnection];
-        return 0;
-    }
+    [self checkConnnection];
+    
     NSLog(@"%s\n", __func__);
     
     const char *cArtist = [artist UTF8String];
@@ -532,11 +577,7 @@
         mpd_return_pair(self.conn, pair);
     }
     mpd_enqueue_pair(self.conn, pair);
-    
-    
-    
-    
-    //mpd_connection_free(self.conn);
+
     return max;
 }
 
@@ -549,12 +590,9 @@
         if(self.currentTime<self.totalTime)
         {
             self.currentTime++;
-//            self.curPos.text = [NSString stringWithFormat:@"%u:%02u", self.currentTime/60,self.currentTime%60];
             self.m_sliderProgress.maximumValue = self.totalTime;
             self.m_sliderProgress.value = self.currentTime;
         }
-     /*   else
-            [self updateView];//kgh */
     }
 }
 
@@ -565,26 +603,19 @@
 
 -(void)playPausePush:(id)sender
 {
-//    [self initializeConnection];
+    [self checkConnnection];
     if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
     {
-        NSLog(@"Connection error");
-        mpd_connection_free(self.conn);
-        [self initializeConnection];
-        return;
+       return;
     }
     
     
     struct mpd_status * status;
-//    mpd_command_list_begin(self.conn, true);
-//    mpd_send_status(self.conn);
-//    mpd_command_list_end(self.conn);
-//    status = mpd_recv_status(self.conn);
+
     status = mpd_run_status(self.conn);
     if (status == NULL)
     {
         NSLog(@"Connection error status");
-//        mpd_connection_free(self.conn);
         return;
     }
     else
@@ -594,19 +625,16 @@
         {
 
             mpd_response_finish(self.conn);
-//            mpd_status_free(status);
             mpd_run_toggle_pause(self.conn);
             [self.m_btnPlay setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateNormal];
         }
         else
         {
             mpd_response_finish(self.conn);
-//            mpd_status_free(status);
             mpd_run_play(self.conn);
             [self.m_btnPlay setImage:[UIImage imageNamed:@"pause.png"] forState:UIControlStateNormal];
         }
     }
-//    mpd_connection_free(self.conn);
     //Rather than update all the info, we just update the view.
     //Doesn't duplicate code, and will only show a state change if call actually worked.
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -615,21 +643,11 @@
         });
     });
     
-    //  [self updateView];
 }
 
 -(void)stopPush:(id)sender {
-//    [self initializeConnection];
-    if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
-    {
-        NSLog(@"Connection error");
-        mpd_connection_free(self.conn);
-        [self initializeConnection];
-        return;
-    }
+    [self checkConnnection];
     mpd_run_stop(self.conn);
-//    mpd_connection_free(self.conn);
-  //  [self updateView];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         dispatch_async(dispatch_get_main_queue(), ^{
             [self updateView];
@@ -649,8 +667,6 @@
         return;
     }
     mpd_run_next(self.conn);
-    //    mpd_connection_free(self.conn);
-    //[self updateView];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -671,8 +687,6 @@
         return;
     }
     mpd_run_previous(self.conn);
-    //    mpd_connection_free(self.conn);
- //   [self updateView];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -731,7 +745,6 @@
 
 -(void)nextPush:(id)sender
 {
-//    [self initializeConnection];
     if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
     {
         NSLog(@"Connection error");
@@ -740,8 +753,6 @@
         return;
     }
     mpd_run_next(self.conn);
-//    mpd_connection_free(self.conn);
-  //  [self updateView];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -754,7 +765,6 @@
 
 -(void)prevPush:(id)sender
 {
-//    [self initializeConnection];
     if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
     {
         NSLog(@"Connection error");
@@ -763,8 +773,6 @@
         return;
     }
     mpd_run_previous(self.conn);
-//    mpd_connection_free(self.conn);
- //   [self updateView];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -777,7 +785,6 @@
 
 //Volume Slider
 - (void) sliderValueChanged:(UISlider *)sender {
-//    [self initializeConnection];
     if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
     {
         NSLog(@"Connection error");
@@ -786,14 +793,12 @@
         return;
     }
     mpd_run_set_volume(self.conn, [sender value]);
-//    mpd_connection_free(self.conn);
     [self.m_tableView reloadData];
 }
 
 //Track Time Position
 -(void)positionValueChanged:(UISlider *)sender
 {
-//    [self initializeConnection];
     if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
     {
         NSLog(@"Connection error");
@@ -802,19 +807,13 @@
         return;
     }
     struct mpd_status * status;
-//    mpd_command_list_begin(self.conn, true);//kgh
-//    mpd_send_status(self.conn);
-//    mpd_command_list_end(self.conn);
-//    status = mpd_recv_status(self.conn);
     status = mpd_run_status(self.conn);
     if(status!=NULL)
     {
         mpd_run_seek_pos(self.conn, mpd_status_get_song_pos(status), [sender value]);
         self.currentTime=[sender value];
-//        mpd_status_free(status);
     }
 
-//    mpd_connection_free(self.conn);
 }
 
 -(void)artClick:(id)sender
@@ -935,7 +934,6 @@
 -(IBAction)segmentEditItemsClick:(id)sender {
     UISegmentedControl* seg = (UISegmentedControl*)sender;
     if (seg.selectedSegmentIndex != 2) {
-//        [self initializeConnection];
         if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
         {
             NSLog(@"Connection error");
@@ -962,7 +960,6 @@
                     mpd_run_random(self.conn, TRUE);
             }
         }
-//        mpd_connection_free(self.conn);
         [self changeEditSegImage];
     }
     else {
@@ -995,35 +992,17 @@
             self.m_nVolume += fTick;
     }
     else {
-        //get song and status
-//        struct mpd_status * status;
-//        mpd_command_list_begin(self.conn, true);
-//        mpd_send_status(self.conn);
-//        mpd_send_current_song(self.conn);
-//        mpd_command_list_end(self.conn);
-//        status = mpd_recv_status(self.conn);
-//        if (status == NULL)
-//        {
-//            NSLog(@"Connection error status");
-//            if (seg.selectedSegmentIndex == 0)
-//                self.m_nVolume -= fTick;
-//            else
-//                self.m_nVolume += fTick;
-//        }
-//        else
-        {
-            //get all of our status and song info
-//            self.m_nVolume = mpd_status_get_volume(status);
+     
+
             if (seg.selectedSegmentIndex == 0)
                 self.m_nVolume -= fTick;
             else
                 self.m_nVolume += fTick;
-        }
+      
         NSLog(@"volume : %d", self.m_nVolume);
         bool ret = mpd_run_set_volume(self.conn, self.m_nVolume);
         NSLog(@"%d", ret);
     }
-//    mpd_connection_free(self.conn);
     if (self.m_nVolume < 0)
         self.m_nVolume = 0;
     else if (self.m_nVolume >= 100)
@@ -1033,18 +1012,14 @@
 }
 
 -(void) changeEditSegImage {
-//    [self initializeConnection];
+
     if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
     {
         NSLog(@"Connection error");
     }
     else {
-        //get song and status
         struct mpd_status * status;
-//        mpd_command_list_begin(self.conn, true);
-//        mpd_send_status(self.conn);
-//        mpd_command_list_end(self.conn);
-//        status = mpd_recv_status(self.conn);
+
         status = mpd_run_status(self.conn);
         if (status == NULL)
         {
@@ -1054,10 +1029,9 @@
             //get all of our status and song info
             self.randomState = mpd_status_get_random(status);
             self.repeatState = mpd_status_get_repeat(status);
-//            mpd_status_free(status);
+
         }
     }
-//    mpd_connection_free(self.conn);
     UIImage* img;
     if (self.repeatState)
         img = [UIImage imageNamed:@"repeat.png"];
@@ -1070,16 +1044,7 @@
         img = [UIImage imageNamed:@"random-off.png"];
     [self.m_segmentEdit setImage:img forSegmentAtIndex:1];
 }
-/*
-- (void) actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-    if (buttonIndex == 0) {
-        self.m_tableView.editing = YES;
-    }
-    else if (buttonIndex == 1) {
-        [self clearQueue:nil];
-    }
-}
- */
+
 - (void) initVolumeView {
     self.m_viewVolume.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.2];
     CGFloat x, y, w, h;
@@ -1161,14 +1126,7 @@
     [self.m_imageThumbMini setImage:image];
 }
 - (void) showSeekView {
-//    [UIView transitionWithView:self.m_viewCover
-//                      duration:1.0
-//                       options:UIViewAnimationOptionTransitionFlipFromLeft
-//                    animations:^{ [self.view addSubview:self.m_viewCover]; }
-//                    completion:^(BOOL f){
-//                        [self.m_viewList removeFromSuperview];
-//                    }
-//     ];
+
     self.m_sliderProgress.enabled = self.isConnected;
     self.m_btnPlay.enabled = self.isConnected;
     self.m_btnStop.enabled = self.isConnected;
@@ -1184,14 +1142,7 @@
     self.m_bShowCover = YES;
 }
 - (void) hideSeekView {
-//    [UIView transitionWithView:self.m_viewList
-//                      duration:1.0
-//                       options:UIViewAnimationOptionTransitionFlipFromRight
-//                    animations:^{ [self.view addSubview:self.m_viewList]; }
-//                    completion:^(BOOL f){
-//                        [self.m_viewCover removeFromSuperview];
-//                    }
-//     ];
+
     [UIView beginAnimations:nil context:NULL];
     [UIView setAnimationDuration:1];
     [UIView transitionFromView:self.m_viewCover toView:self.m_viewList duration:1 options:UIViewAnimationOptionTransitionFlipFromLeft completion:NULL];
@@ -1210,35 +1161,18 @@
 {
     NSInteger pos;
     NSLog(@"%s\n", __func__);
-    //[self initializeConnection];
-    if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
-    {
-        [self checkConnnection];
-        NSLog(@"Connection error - %d", mpd_connection_get_error(self.conn));
-//        mpd_connection_free(self.conn);
-//        [self initializeConnection];
-        return 0;
-    }
+   [self checkConnnection];
     struct mpd_status * status;
-//    mpd_command_list_begin(self.conn, true);//kgh
-//    mpd_send_status(self.conn);
-//    mpd_command_list_end(self.conn);
-//    
-//    status = mpd_recv_status(self.conn);
     status = mpd_run_status(self.conn);
     
     if (status == NULL)
     {
         NSLog(@"Connection error status");
          [self checkConnnection];
-        //        mpd_connection_free(self.conn);
-//        [self initializeConnection];
         return 0;
     }
     
     pos = mpd_status_get_queue_length(status);
-//    mpd_connection_free(self.conn);
-//    mpd_status_free(status);
     self.prevRowCount = self.rowCount;
     self.rowCount = pos;
     return pos;
@@ -1249,7 +1183,6 @@
     static NSString *CellIdentifier = @"CeldaIdentifier";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     
-//    [self updateRowCount];
     //should probably use queue number instead, but this works fine, especially with the timer
     if(self.rowCount!=self.prevRowCount)
     {
@@ -1268,22 +1201,12 @@
     
     if(indexPath.row <[tableView numberOfRowsInSection:0])
     {
-//        [self initializeConnection];
         if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
         {
             NSLog(@"Connection error");
-//            mpd_connection_free(self.conn);
-//            [self initializeConnection];
             return cell;
         }
-        /*
-        struct mpd_song *nextSong = malloc(sizeof(struct mpd_song));
-        nextSong=mpd_run_get_queue_song_pos(self.conn, indexPath.row);
-//        [[cell detailTextLabel] setText:[[NSString alloc] initWithUTF8String:mpd_song_get_tag(nextSong, MPD_TAG_ARTIST, 0)]];
-//        [[cell textLabel] setText:[[NSString alloc] initWithUTF8String:mpd_song_get_tag(nextSong, MPD_TAG_TITLE, 0)]]; */
-        
-             
-      
+
         UILabel* labelTitle = (UILabel*)[cell.contentView viewWithTag:2];
         UILabel* labelAlbum = (UILabel*)[cell.contentView viewWithTag:3];
         
@@ -1295,38 +1218,8 @@
             labelTitle.text = [[SongTitle objectAtIndex:indexPath.row] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
             labelAlbum.text = [[SongAlbum objectAtIndex:indexPath.row] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
         }
-        
-      
-  /*       UILabel* labelArtist = (UILabel*)[cell.contentView viewWithTag:3];
 
-        labelArtist.text = [[SongArtist objectAtIndex:indexPath.row] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-        UILabel* labelTime = (UILabel*)[cell.contentView viewWithTag:4];
-
-        labelTime.text = [[SongTime objectAtIndex:indexPath.row] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-        */
     }
- /*   struct mpd_status * status;
-//    mpd_send_status(self.conn);
-//    
-//    status = mpd_recv_status(self.conn);
-    status = mpd_run_status(self.conn);
-    
-    if (status != NULL)
-    {
-        UIImageView* imgView = (UIImageView*)[cell.contentView viewWithTag:1];
-    //    if(mpd_status_get_song_pos(status)==indexPath.row)
-        if([[SongStatus objectAtIndex:indexPath.row] intValue]==indexPath.row)
-        {
-            imgView.image = [UIImage imageNamed:@"nowplaying.png"];
-        }
-        else
-        {
-            imgView.image = nil;
-        }
-    }
-    
-    */
-//    mpd_connection_free(self.conn);
     return cell;
 }
 
@@ -1373,20 +1266,11 @@
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-//        [self initializeConnection];
-        if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
-        {
-            NSLog(@"Connection error");
-            mpd_connection_free(self.conn);
-            [self initializeConnection];
-            return;
-        }
-        
+        [self checkConnnection];
         if(mpd_run_delete(self.conn, indexPath.row)){
             [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
         }
-//        mpd_connection_free(self.conn);
-//        [self updateView];
+
     }
     else if (editingStyle == UITableViewCellEditingStyleInsert) {
     }
@@ -1397,17 +1281,8 @@
 // Override to support rearranging the table view.
 - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
 {
-//    [self initializeConnection];
-    if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
-    {
-        NSLog(@"Connection error");
-        [self checkConnnection];
-       /* mpd_connection_free(self.conn);
-        [self initializeConnection]; */
-        return;
-    }
+    [self checkConnnection];
     mpd_run_move(self.conn, fromIndexPath.row, toIndexPath.row);
-//    mpd_connection_free(self.conn);
     [self.m_tableView reloadData];
 }
 
@@ -1448,33 +1323,18 @@
 {
     NSInteger pos;
     NSLog(@"%s\n", __func__);
-//    [self initializeConnection];
-    if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
-    {
-        NSLog(@"Connection error");
-//        mpd_connection_free(self.conn);
-//        [self initializeConnection];
-        return;
-    }
+    [self checkConnnection];
     struct mpd_status * status;
-//    mpd_command_list_begin(self.conn, true);//kgh
-//    mpd_send_status(self.conn);
-//    mpd_command_list_end(self.conn);
-//    
-//    status = mpd_recv_status(self.conn);
+
     status = mpd_run_status(self.conn);
     
     if (status == NULL)
     {
         NSLog(@"Connection error status");
-//        mpd_connection_free(self.conn);
-//        [self initializeConnection];
         return;
     }
     
     pos = mpd_status_get_queue_length(status);
-//    mpd_status_free(status);
-//    mpd_connection_free(self.conn);
     self.prevRowCount = self.rowCount;
     self.rowCount = pos;
     
@@ -1484,18 +1344,9 @@
 //Clear the Play Queue
 -(void)clearQueue:(id)sender
 {
-//    [self initializeConnection];
-    if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
-    {
-        NSLog(@"Connection error");
-        mpd_connection_free(self.conn);
-        [self initializeConnection];
-        return;
-    }
+    [self checkConnnection];
     mpd_send_clear(self.conn);
-//    mpd_connection_free(self.conn);
- //   [self updateView];
-    
+  
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         dispatch_async(dispatch_get_main_queue(), ^{
             [self updateView];
@@ -1508,7 +1359,6 @@
 
 
 - (void) deleteQueue:(int)pos {
-//    [self initializeConnection];
     if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
     {
         NSLog(@"Connection error");
@@ -1517,8 +1367,6 @@
         return;
     }
     mpd_run_delete(self.conn, pos);
-//    mpd_connection_free(self.conn);
- //   [self updateView];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -1535,48 +1383,26 @@
     {
         NSLog(@"Connection error");
          [self checkConnnection];
-      /*  mpd_connection_free(self.conn);
-        [self initializeConnection]; */
         
     }
     else
     {
-    
-   //     NSMutableArray * internalElement = [[NSMutableArray alloc] init];
-    
-   
-        
         NSInteger pos;
         NSLog(@"%s\n", __func__);
-        //    [self initializeConnection];
-        if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
-        {
-            NSLog(@"Connection error - %d", mpd_connection_get_error(self.conn));
-            //        mpd_connection_free(self.conn);
-            //        [self initializeConnection];
-            pos = 0;
-        }
+        [self checkConnnection];
         struct mpd_status * status;
-        //    mpd_command_list_begin(self.conn, true);//kgh
-        //    mpd_send_status(self.conn);
-        //    mpd_command_list_end(self.conn);
-        //
-        //    status = mpd_recv_status(self.conn);
+
         status = mpd_run_status(self.conn);
         
         if (status == NULL)
         {
             NSLog(@"Connection error status");
-            //        mpd_connection_free(self.conn);
-            //        [self initializeConnection];
             pos = 0;
             
         }
         else
         {
             pos = mpd_status_get_queue_length(status);
-            //    mpd_connection_free(self.conn);
-            //    mpd_status_free(status);
             self.prevRowCount = self.rowCount;
             self.rowCount = pos;
             
@@ -1591,15 +1417,12 @@
             for (int x=0; x<pos; x++) {
                 struct mpd_song *nextSong = malloc(sizeof(struct mpd_song));
                 nextSong=mpd_run_get_queue_song_pos(self.conn, x);
-                //        [[cell detailTextLabel] setText:[[NSString alloc] initWithUTF8String:mpd_song_get_tag(nextSong, MPD_TAG_ARTIST, 0)]];
-                //        [[cell textLabel] setText:[[NSString alloc] initWithUTF8String:mpd_song_get_tag(nextSong, MPD_TAG_TITLE, 0)]];
                 if(nextSong!=NULL)
                 {
                     char* szTitle = (char*)mpd_song_get_tag(nextSong, MPD_TAG_TITLE, 0);
                     if (szTitle == nil) {
                         szTitle = "Unkown Title";
                     }
-                 //   [SongTitle_tmp addObject:[[NSString alloc] initWithUTF8String:szTitle]];
                     [SongTitle addObject:[[NSString alloc] initWithUTF8String:szTitle]];
                     
                     char* szAlbum = (char*)mpd_song_get_tag(nextSong, MPD_TAG_ALBUM, 0);
@@ -1612,68 +1435,25 @@
                     char* szArtist = (char*)mpd_song_get_tag(nextSong, MPD_TAG_ARTIST, 0);
                     if (szArtist == nil)
                         szArtist = "Unkown Aritist";
-                    //  labelArtist.text = [[NSString alloc] initWithUTF8String:szArtist];
                     
                     [SongArtist_tmp addObject:[[NSString alloc] initWithUTF8String:szArtist]];
                     
-                    //   UILabel* labelTime = (UILabel*)[cell.contentView viewWithTag:4];
                     int totalTime = mpd_song_get_duration(nextSong);
                     [SongTime_tmp addObject:[NSString stringWithFormat:@"%u:%02u", totalTime/60, totalTime%60 ]];
-                    //   labelTime.text = [NSString stringWithFormat:@"%u:%02u", totalTime/60, totalTime%60 ];
-                    
-                    // struct mpd_status * status;
-                    
-                    // status = mpd_run_status(self.conn);
+
                     [SongStatus_tmp addObject:[NSNumber numberWithInteger:mpd_status_get_song_pos(status)]];
                 
                 }
                 
                 
             }
-            //  NSLog(@"%@",self.SongArtist);
             
             SongTime = SongTime_tmp;
-       //     SongTitle = SongTitle_tmp;
             SongArtist = SongArtist_tmp;
             SongStatus = SongStatus_tmp;
-            
-            //  [self.m_tableView reloadData];
-            
-            /*   NSMutableArray *SongTitle;
-             NSMutableArray *SongArtist;
-             NSMutableArray *SongTime;
-             NSMutableArray *SongStatus;
-             
-             [internalElement addObject:[json valueForKey:@"title"]];
-             [internalElement addObject:[json valueForKey:@"introtext"]];
-             [internalElement addObject:[json valueForKey:@"imagen"]];
-             [internalElement addObject:[json valueForKey:@"latitud"]];
-             [internalElement addObject:[json valueForKey:@"longitud"]];
-             [internalElement addObject:[json valueForKey:@"catid"]];
-             [internalElement addObject:[json valueForKey:@"catname"]];
-             [internalElement addObject:[json valueForKey:@"filtro"]];
-             [internalElement addObject:[json valueForKey:@"title"]];
-             
-             [internalElement addObject:[json valueForKey:@"filtrocompras"]];
-             [internalElement addObject:[json valueForKey:@"horario_comercio"]];
-             [internalElement addObject:[json valueForKey:@"telefono"]];
-             [internalElement addObject:[json valueForKey:@"email"]];
-             [internalElement addObject:[json valueForKey:@"web"]];
-             [internalElement addObject:[json valueForKey:@"sugerir"]];
-             [internalElement addObject:[json valueForKey:@"pintxo"]];
-             [internalElement addObject:[json valueForKey:@"5dto"]];
-             [internalElement addObject:[json valueForKey:@"10dto"]];
-             [internalElement addObject:[json valueForKey:@"cine"]];
-             [internalElement addObject:[json valueForKey:@"tipodato"]];
-             [internalElement addObject:[json valueForKey:@"fechainicio"]];
-             [internalElement addObject:[json valueForKey:@"fechafin"]];
-             */
+
             [self.m_tableView reloadData];
-            
-            
-            //      NSLog(@"%lu",(unsigned long)[internalElement count]);
-            
-            //   self.SongData = internalElement;
+
 
         }
     }
@@ -2024,6 +1804,13 @@
         
     }];
     
+}
+
+- (IBAction)LibraryMenuClick:(id)sender {
+    [self.updateTimer invalidate];
+    [self.clockTimer invalidate];
+    self.updateTimer = nil;
+    self.clockTimer = nil;
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField{

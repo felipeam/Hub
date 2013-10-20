@@ -75,11 +75,8 @@
      if ([fileManager fileExistsAtPath:filePath] == YES)
      {
          NSMutableArray *data = [[NSMutableArray alloc]initWithArray:[NSKeyedUnarchiver unarchiveObjectWithFile:filePath]];
-       //  host=data[0];
-       //  port=data[1];
+
      }
-    //NSLog(self.host);
-    //NSLog(self.port);
     
     
     return self;
@@ -93,7 +90,6 @@
 
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
-    //NSLog(@"Entering Background");
     
     mpdConnectionData *globalConnection = [mpdConnectionData sharedManager];
     //NSLog(@"here");
@@ -102,10 +98,7 @@
     NSString *docDir = [paths objectAtIndex:0];
     NSString *fullFileName = [NSString stringWithFormat:@"%@/data.plist", docDir];
     [NSKeyedArchiver archiveRootObject:data toFile:fullFileName];
-    //NSLog(@"here2");
-    
-    //globalConnection.host = self.ipTextField.text;
-    //globalConnection.port = [[NSNumber alloc] initWithInt:[self.portTextField.text intValue]];
+
     
     
 }

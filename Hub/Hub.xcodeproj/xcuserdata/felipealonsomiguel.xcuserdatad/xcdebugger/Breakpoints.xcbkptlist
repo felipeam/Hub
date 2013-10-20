@@ -541,11 +541,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/playlistsList.m"
-         timestampString = "397325361.168309"
+         timestampString = "400268958.067277"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "152"
-         endingLineNumber = "152"
+         startingLineNumber = "212"
+         endingLineNumber = "212"
          landmarkName = "-addAlbumAtSectionAndIndexToQueue:row:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -970,11 +970,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/TablePlayListViewController.m"
-         timestampString = "397534323.141957"
+         timestampString = "400244547.84683"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "56"
-         endingLineNumber = "56"
+         startingLineNumber = "89"
+         endingLineNumber = "89"
          landmarkName = "-tableView:numberOfRowsInSection:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -983,24 +983,24 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/TablePlayListViewController.m"
-         timestampString = "397534323.141957"
+         timestampString = "400244547.84683"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "62"
-         endingLineNumber = "62"
+         startingLineNumber = "95"
+         endingLineNumber = "95"
          landmarkName = "-tableView:cellForRowAtIndexPath:"
          landmarkType = "5">
       </FileBreakpoint>
       <FileBreakpoint
-         shouldBeEnabled = "No"
+         shouldBeEnabled = "Yes"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/TablePlayListViewController.m"
-         timestampString = "397534323.141957"
+         timestampString = "400265371.93881"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "260"
-         endingLineNumber = "260"
+         startingLineNumber = "280"
+         endingLineNumber = "280"
          landmarkName = "-initializePlaylistDataList:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -1034,19 +1034,6 @@
          shouldBeEnabled = "No"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
-         filePath = "Hub/playlistsList.m"
-         timestampString = "397522461.549509"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "76"
-         endingLineNumber = "76"
-         landmarkName = "-initializeDefaultDataList"
-         landmarkType = "5">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
          filePath = "Hub/TablePlayListViewController.m"
          timestampString = "397534323.141957"
          startingColumnNumber = "9223372036854775807"
@@ -1061,11 +1048,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/playlistsList.m"
-         timestampString = "397522882.883382"
+         timestampString = "400268958.067277"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "125"
-         endingLineNumber = "125"
+         startingLineNumber = "185"
+         endingLineNumber = "185"
          landmarkName = "-playlistsCount"
          landmarkType = "5">
       </FileBreakpoint>
@@ -1334,24 +1321,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/ListadosViewController.m"
-         timestampString = "397592684.795618"
+         timestampString = "400244547.84683"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "331"
-         endingLineNumber = "331"
-         landmarkName = "-MostrarListadoCanciones"
-         landmarkType = "5">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "Hub/ListadosViewController.m"
-         timestampString = "397592684.795618"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "344"
-         endingLineNumber = "344"
+         startingLineNumber = "343"
+         endingLineNumber = "343"
          landmarkName = "-MostrarListadoCanciones"
          landmarkType = "5">
       </FileBreakpoint>
@@ -1395,15 +1369,15 @@
          landmarkType = "5">
       </FileBreakpoint>
       <FileBreakpoint
-         shouldBeEnabled = "No"
+         shouldBeEnabled = "Yes"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/TablePlayListViewController.m"
-         timestampString = "397566583.5472"
+         timestampString = "400265371.93881"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "324"
-         endingLineNumber = "324"
+         startingLineNumber = "348"
+         endingLineNumber = "348"
          landmarkName = "-addPlaylistSong:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -1412,11 +1386,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/TablePlayListViewController.m"
-         timestampString = "397566583.5472"
+         timestampString = "400265371.93881"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "351"
-         endingLineNumber = "351"
+         startingLineNumber = "379"
+         endingLineNumber = "379"
          landmarkName = "-addPlaylistSong:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -1425,11 +1399,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/TablePlayListViewController.m"
-         timestampString = "397566583.5472"
+         timestampString = "400265371.93881"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "319"
-         endingLineNumber = "319"
+         startingLineNumber = "342"
+         endingLineNumber = "342"
          landmarkName = "-initializePlaylistDataList:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -1438,11 +1412,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/TablePlayListViewController.m"
-         timestampString = "397566571.973887"
+         timestampString = "400265371.93881"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "302"
-         endingLineNumber = "302"
+         startingLineNumber = "325"
+         endingLineNumber = "325"
          landmarkName = "-initializePlaylistDataList:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -1477,11 +1451,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/mpdNowPlayingViewController.m"
-         timestampString = "399555974.291219"
+         timestampString = "400245405.937302"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "2033"
-         endingLineNumber = "2033"
+         startingLineNumber = "2040"
+         endingLineNumber = "2040"
          landmarkName = "-textFieldShouldReturn:"
          landmarkType = "5">
       </FileBreakpoint>
@@ -1490,11 +1464,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/ListadosViewController.m"
-         timestampString = "397592684.795618"
+         timestampString = "400244547.84683"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "377"
-         endingLineNumber = "377"
+         startingLineNumber = "374"
+         endingLineNumber = "374"
          landmarkName = "-MostrarListadoCancionesBusqueda"
          landmarkType = "5">
       </FileBreakpoint>
@@ -1503,11 +1477,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "Hub/ListadosViewController.m"
-         timestampString = "397592684.795618"
+         timestampString = "400244547.84683"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "386"
-         endingLineNumber = "386"
+         startingLineNumber = "383"
+         endingLineNumber = "383"
          landmarkName = "-MostrarListadoCancionesBusqueda"
          landmarkType = "5">
       </FileBreakpoint>
@@ -1613,6 +1587,97 @@
          startingLineNumber = "170"
          endingLineNumber = "170"
          landmarkName = "-initializeConnection"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "Hub/mpdNowPlayingViewController.m"
+         timestampString = "400245042.307549"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "106"
+         endingLineNumber = "106"
+         landmarkName = "-viewDidAppear:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "Hub/TablePlayListViewController.m"
+         timestampString = "400265371.93881"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "321"
+         endingLineNumber = "321"
+         landmarkName = "-initializePlaylistDataList:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "Yes"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "Hub/playlistsList.m"
+         timestampString = "400268958.067277"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "141"
+         endingLineNumber = "141"
+         landmarkName = "-initializeDataList:tagtype:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "Hub/TablePlayListViewController.m"
+         timestampString = "400265371.93881"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "360"
+         endingLineNumber = "360"
+         landmarkName = "-addPlaylistSong:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "Hub/playlistsList.m"
+         timestampString = "400266166.003816"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "71"
+         endingLineNumber = "71"
+         landmarkName = "-initializeDefaultDataList"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "Yes"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "Hub/playlistsList.m"
+         timestampString = "400266728.930096"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "76"
+         endingLineNumber = "76"
+         landmarkName = "-initializeDefaultDataList"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "Yes"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "Hub/playlistsList.m"
+         timestampString = "400268958.067277"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "122"
+         endingLineNumber = "122"
+         landmarkName = "-initializeDefaultDataList"
          landmarkType = "5">
       </FileBreakpoint>
    </FileBreakpoints>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>2A92486D-4C75-4273-B66A-ABF14B16C585</string>
+	<key>IDESourceControlProjectName</key>
+	<string>MpdDispatch</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>69A253DB-B74F-40CE-A7F8-980C6734A83C</key>
+		<string>https://github.com/FonNY/SoundHub-iOS.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>MpdDispatch/MpdDispatch.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>69A253DB-B74F-40CE-A7F8-980C6734A83C</key>
+		<string>../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/FonNY/SoundHub-iOS.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>69A253DB-B74F-40CE-A7F8-980C6734A83C</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>69A253DB-B74F-40CE-A7F8-980C6734A83C</string>
+			<key>IDESourceControlWCCName</key>
+			<string>Hub</string>
+		</dict>
+	</array>
+</dict>
+</plist>

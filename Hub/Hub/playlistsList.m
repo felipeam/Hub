@@ -41,7 +41,7 @@
 {
     NSMutableArray *list = [[NSMutableArray alloc] init];
     self.playlists = list;
-    
+
     [self initializeConnection];
     if (mpd_connection_get_error(self.conn) != MPD_ERROR_SUCCESS)
     {
@@ -73,6 +73,66 @@
        // mpd_playlist_free(playlist);
     }
 
+    const char *cSearch = [[self.playlists objectAtIndex:1] UTF8String];
+
+    mpd_command_list_begin(self.conn, true);
+   /* if (mpd_send_list_playlist(self.conn, cSearch))
+    {
+        NSLog(@"OK:");
+    } */
+ /*   if (mpd_send_list_playlist(self.conn, cSearch))
+    {
+        NSLog(@"OK1:");
+    }
+  
+    if (    mpd_send_save(self.conn, cSearch))
+    {
+        NSLog(@"OK2:");
+    }
+    
+   if (mpd_run_save(self.conn, cSearch))
+    {
+        NSLog(@"OK3:");
+    }
+    
+    if (mpd_send_load(self.conn, cSearch))
+    {
+        NSLog(@"OK4:");
+    }*/
+    
+    if (mpd_run_load(self.conn, cSearch))
+    {
+        NSLog(@"OK5:");
+    }
+   /* */
+   // mpd_search_add_tag_constraint(self.conn, MPD_OPERATOR_DEFAULT, MPD_TAG_TRACK, cSearch);
+    
+  //  mpd_search_commit(self.conn);
+    mpd_command_list_end(self.conn);
+
+    
+  /*  
+    */
+    
+   
+    
+    struct mpd_song *song;
+    while((song=mpd_recv_song(self.conn))!=NULL)
+    {
+        char* szText = (char*)mpd_song_get_tag(song, MPD_TAG_TITLE, 0);
+        if (szText == nil) {
+            szText = "Unkown Title";
+        }
+        NSLog(@"CANCION: %@",[[NSString alloc] initWithUTF8String:szText]);
+        
+        
+        char* AlbumText = (char*)mpd_song_get_tag(song, MPD_TAG_ALBUM, 0);
+        if (AlbumText == nil) {
+            AlbumText = "Unkown album";
+        }
+        
+    }
+    
     mpd_connection_free(self.conn);
    // [self.playlists sortUsingSelector:@selector(compare:)];
 }
